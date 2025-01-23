@@ -1,0 +1,2 @@
+<!--Add Addendums: Rather than fully deleting, create addendums to log modifications or corrections while preserving original records.
+Void Orders: Mark an order as "void" or "inactive" without fully deleting it, to maintain traceability.-->

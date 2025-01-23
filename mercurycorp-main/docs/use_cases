@@ -1,0 +1,57 @@
+Use Case 1: Logging In
+
+Instructions:
+
+1. Use the following credentials to log in:
+   Username: donnam
+   Password: softwareengineering  
+    a. Redirects to the HR Dashboard.
+   b. Click log out button
+2. Use the following credentials to log in:
+   Username: doed
+   Password: softwareengineering  
+    a. Redirects to the Nurse Dashboard.
+   b. Click log out button
+3. Use the following credentials to log in:
+   Username: banksb
+   Password: softwareengineering  
+    a. Redirects to the Employee Dashboard.
+   b. Click log out button
+
+Use Case 2: Navigating the HR Dashboard
+
+Instructions:
+
+1. Log in with the credentials:
+   Username: donnam
+   Password: softwareengineering
+2. Once logged in, the HR Dashboard will appear.
+   a. Navigate the dashboard as follows:
+   i. Click on the "Employee Management" tab to view a list of all employees and an overview of employee statistics
+   as well as a form to add new employees.
+   ii. Click on the "Department Management" tab to view the department management page.
+   b.Within the Department Management page:
+   i. Click "View Employees" for any department to display all employees in that department.
+   ii. Use the search bar to find specific departments by typing department names.
+
+Use Case 3: Creating a Physician Order
+
+Instructions:
+
+1. Log in with the credentials:
+   Username: doed
+   Password: softwareengineering  
+   a. You will be directed to the Nurse Dashboard.
+2. Scroll down to locate the "Create Physician Order" section.
+3. Input the following details into the form:
+   Medication: Aspirin  
+   Dosage: 100mg  
+   Frequency: Once Daily  
+   Start Date: [Today’s Date]  
+   End Date: Leave Blank  
+   Instructions: BID with meal  
+   Physician: Select "Fisher, Mary"  
+   Resident: Select "Doe, John"  
+   Employee ID: 00001
+4. Click the "Submit Order" button.
+5. A new order should appear in the list below as OrderID 40 or above.
