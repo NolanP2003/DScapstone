@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Chatbot</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow-x: hidden;
+            font-family: "Roboto", sans-serif;
+            background-color: #fdf8ef;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #262a58;
+            font-size: larger;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header img {
+            width: 80px;
+            margin-right: 20px;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 150px);
+            padding: 20px;
+        }
+
+        #chat-section {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+        }
+
+        #chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #user-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #send-button {
+            background-color: rgba(98, 75, 182, 0.667);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: rgba(98, 75, 182, 0.8);
+        }
+
+        .user-message, .bot-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .user-message {
+            background-color: #e0f7fa;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #f1f8e9;
+            align-self: flex-start;
+        }
+
+        footer {
+            text-align: center;
+            font-size: small;
+            padding: 20px;
+            background-color: rgb(210, 196, 212);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Medical Chatbot</h2>
+</header>
+
+<main>
+    <div id="chat-section">
+        <div id="chat-box">
+            <div id="messages"></div>
+        </div>
+        <div id="user-input">
+            <input type="text" id="user-message" placeholder="Ask a question...">
+            <button id="send-button" onclick="sendQuery()">Send</button>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2025 Medical Chatbot. All rights reserved.</p>
+</footer>
+
+<script>
+    function sendQuery() {
+        const query = document.getElementById('user-message').value;
+        
+        if(query.trim() === '') {
+            alert("Please enter a query.");
+            return;
+        }
+        
+        document.getElementById('messages').innerHTML += `<div class="user-message">You: ${query}</div>`;
+        
+        fetch('send_query.php', {
+            method: 'POST',
+            body: JSON.stringify({ query: query }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                const bulletPoints = data.answer.map(item => `<li>${item}</li>`).join('');
+                document.getElementById('messages').innerHTML += `<div class="bot-message">Bot: <ul>${bulletPoints}</ul></div>`;
+            } else {
+                document.getElementById('messages').innerHTML += `<div class="bot-message">Bot: ${data.message}</div>`;
+            }
+    
+            document.getElementById('user-message').value = '';
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight; // Scroll to the bottom
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('messages').innerHTML += `<div class="bot-message">Bot: An error occurred. Please try again.</div>`;
+        });
+    }
+    
+    
+</script>
+
+</body>
+</html>
