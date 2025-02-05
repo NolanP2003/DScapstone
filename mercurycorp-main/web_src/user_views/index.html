@@ -23,11 +23,6 @@
             text-align: center;
         }
 
-        header img {
-            width: 80px;
-            margin-right: 20px;
-        }
-
         main {
             display: flex;
             justify-content: center;
@@ -53,6 +48,8 @@
             border-radius: 8px;
             padding: 10px;
             margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
         #user-input {
@@ -84,6 +81,7 @@
             margin: 10px 0;
             padding: 10px;
             border-radius: 4px;
+            max-width: 80%;
         }
 
         .user-message {
@@ -129,44 +127,43 @@
 
 <script>
     function sendQuery() {
-        const query = document.getElementById('user-message').value;
-        
-        if(query.trim() === '') {
+        const userMessageElement = document.getElementById('user-message');
+        const query = userMessageElement.value.trim();
+
+        if (query === '') {
             alert("Please enter a query.");
             return;
         }
+
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.insertAdjacentHTML("beforeend", `<div class="user-message">You: ${query}</div>`);
         
-        document.getElementById('messages').innerHTML += `<div class="user-message">You: ${query}</div>`;
-        
+        userMessageElement.value = '';
+
         fetch('send_query.php', {
             method: 'POST',
             body: JSON.stringify({ query: query }),
             headers: { 'Content-Type': 'application/json' }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                const bulletPoints = data.answer.map(item => `<li>${item}</li>`).join('');
-                document.getElementById('messages').innerHTML += `<div class="bot-message">Bot: <ul>${bulletPoints}</ul></div>`;
+            let botResponse = '';
+
+            if (data.status === 'success' && Array.isArray(data.answer)) {
+                botResponse = data.answer.map(item => `${item}`).join('<br>');
             } else {
-                document.getElementById('messages').innerHTML += `<div class="bot-message">Bot: ${data.message}</div>`;
+                botResponse = data.message || 'An error occurred. Please try again.';
             }
-    
-            document.getElementById('user-message').value = '';
-            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight; // Scroll to the bottom
+
+            messagesContainer.insertAdjacentHTML("beforeend", `<div class="bot-message">Bot: ${botResponse}</div>`);
+
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
         })
         .catch(error => {
             console.error('Error:', error);
-            document.getElementById('messages').innerHTML += `<div class="bot-message">Bot: An error occurred. Please try again.</div>`;
+            messagesContainer.insertAdjacentHTML("beforeend", `<div class="bot-message">Bot: An error occurred. Please try again.</div>`);
         });
     }
-    
-    
 </script>
 
 </body>
