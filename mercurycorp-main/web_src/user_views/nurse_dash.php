@@ -298,7 +298,9 @@ try {
         <input type="date" name="end_date">
 
         <label for="instructions">Instructions:</label>
-        <textarea name="instructions"></textarea>
+        <div class="input-container">
+            <textarea name="instructions"></textarea>
+        </div>
 
         <!-- Dropdown for Physician ID -->
         <label for="physician_id">Physician:</label>
