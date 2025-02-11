@@ -11,3 +11,10 @@ Softwares similar are available (Point Click Care) however they do not support a
 2.  Having a simple website, that is clear and concise, bringing up user-information. Depending on who is logging in, there will be 3 different views, an employee view, a nurse view, and a patient view. These views will show different information that is relevant to that person (for example, an employer can see the nurse information, but not the information on the patients they treat. The nurse will have access to their patients information, but not HR's).
 3.  Make a log in feature that showcases if person X logs in, they're able to see certain things.
 4.  figuring out to integrate a PDF viewer onto the website to access medical records. 
+
+
+
+## Updates for 2/10/25
+
+#### Chatbot:
+I changed up the chatbot so that it follows a MapReduce structure. I have not gotten it to work with MRJob yet, so I left it as is so that it provides a working example. I broke down that dataset a bit further and currently (offline without commits) have started trying to make an NLP model to better cipher through the data. Right now, it produces all the data that corresponds to the query, but in the future I want it better tailored towards the specific input. The formatting of the webpage is improved with additional CSS.
