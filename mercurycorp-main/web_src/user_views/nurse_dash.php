@@ -390,5 +390,6 @@ try {
         if (message.trim() != ""){
             displayMessage('You:' + message);
         }
+        </script>
 </body>
 </html>
