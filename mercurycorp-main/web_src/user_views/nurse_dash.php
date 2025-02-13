@@ -377,7 +377,7 @@ try {
   <img class="socialMediaIcon" src="../photos/twitter.png" alt="Twitter">
 </a>
 </footer>
-<div id= "chat-container" style= "position: fixed; bottom: 20px;  right: 20px; width: 100px; height: 100px; background: white; border-radius: 8px;">
+<div id= "chat-container" style= "position: fixed; bottom: 20px;  right: 20px; width: 200px; height: 300px; background: white; border-radius: 8px;">
     <div id="chat-box" style="height: 80%; overflow-y: scroll; background: white; border-radius: 5px; margin-bottom: 10px;">
 
         </div>
