@@ -377,6 +377,13 @@ try {
   <img class="socialMediaIcon" src="../photos/twitter.png" alt="Twitter">
 </a>
 </footer>
-    
+<div id= "chat-container" style= "position: fixed; bottom: 20px;  right: 20px; width: 300px; height: 400px; background: white; border-radius: 8px;">
+    <div id="chat-box" style="height: 80%; overflow-y: scroll; background: white; border-radius: 5px; margin-bottom: 10px;">
+
+        </div>
+        <input type="text" id="user-message" placeholder="Type a message..." style="width: 80%; padding: 8px; border-radius: 5px;">
+         <button id="send-message" style="padding: 8px; border-radius: 5px; background-color:blue; color: white;">Send</button>
+</div>
+
 </body>
 </html>
