@@ -384,6 +384,11 @@ try {
         <input type="text" id="user-message" placeholder="Type a message..." style="width: 80%; padding: 8px; border-radius: 5px;">
          <button id="send-message" style="padding: 8px; border-radius: 5px; background-color:blue; color: white;">Send</button>
 </div>
-
+<script>
+    document.getElementById('send-message').addEventListener('click', function
+        message = document.getElementById('user-message').value);
+        if (message.trim() != ""){
+            displayMessage('You:' + message);
+        }
 </body>
 </html>
