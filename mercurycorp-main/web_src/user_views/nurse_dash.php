@@ -364,6 +364,29 @@ try {
 </table>
     </div>
         <br></br>
+<div id= "chat-container" style= "position: fixed; bottom: 20px;  right: 20px; width: 200px; height: 300px; background: white; border-radius: 8px;">
+    <div id="chat-box" style="height: 80%; overflow-y: scroll; background: white; border-radius: 5px; margin-bottom: 10px;">
+
+        </div>
+        <input type="text" id="user-message" placeholder="Type a message..." style="width: 80%; padding: 8px; border-radius: 5px;">
+         <button id="send-message" style="padding: 8px; border-radius: 5px; background-color:blue; color: white;">Send</button>
+</div>
+<script>
+    document.getElementById('send-message').addEventListener('click', function() {
+        message = document.getElementById('user-message').value;
+        if (message.trim() != ""){
+            displayMessage('You:' + message);
+        }
+    });
+
+    function displayMessage(message) {
+        var chatBox = document.getElementById('chat-box');
+        var messageElement = document.createElement('p');
+        messageElement.textContent = message;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+        </script>
 <footer>
   <p> 2024 Mercury Corp. All rights reserved.</p>
   <p>Follow us on social media!</p>
@@ -377,19 +400,6 @@ try {
   <img class="socialMediaIcon" src="../photos/twitter.png" alt="Twitter">
 </a>
 </footer>
-<div id= "chat-container" style= "position: fixed; bottom: 20px;  right: 20px; width: 200px; height: 300px; background: white; border-radius: 8px;">
-    <div id="chat-box" style="height: 80%; overflow-y: scroll; background: white; border-radius: 5px; margin-bottom: 10px;">
 
-        </div>
-        <input type="text" id="user-message" placeholder="Type a message..." style="width: 80%; padding: 8px; border-radius: 5px;">
-         <button id="send-message" style="padding: 8px; border-radius: 5px; background-color:blue; color: white;">Send</button>
-</div>
-<script>
-    document.getElementById('send-message').addEventListener('click', function
-        message = document.getElementById('user-message').value);
-        if (message.trim() != ""){
-            displayMessage('You:' + message);
-        }
-        </script>
 </body>
 </html>
