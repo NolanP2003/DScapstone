@@ -376,6 +376,21 @@ try {
         message = document.getElementById('user-message').value;
         if (message.trim() != ""){
             displayMessage('You:' + message);
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayMessage('Chatbot: ' + data.response);
+                document.getElementById('user-message').value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
     });
 
