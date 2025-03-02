@@ -9,7 +9,17 @@ The chatbot is currently using the medical_qa.csv file. It is using a Flask app 
 
 
 ### Patient Analysis
-The patient analysis is still in its initial stages, with the current notebook showing various data analysis models to identify the most effective approach for predicting medical conditions and length of stay. This served as preliminary modeling before progressing to more complex datasets from Synthea that include additional variables. Key takeaways from this phase indicate that models such as logistic regression, random forest, LSTM, GRU, and DNNs exhibited limited predictive accuracy, defaulting to average predictions for length of stay and struggling to capture data variance. This suggests potential underfitting and highlights the need for more features, including medical conditions, admission types, and insurance providers, to enhance model performance. Models like LSTM and GRU demonstrated basic learning capabilities but failed to use the sequential data in the best way, implying the current dataset may lack strong temporal patterns. In the next steps, there will be an incorporatin of comprehensive clinical data, refining feature engineering, and exploring different model parameters.
+Git Commit 4: 
+A machine learning model to predict patient encounters was developed and optimized based on their medical history. After working with many models, including LSTM, GRU, and CNN, it was  found that LSTM with focal loss and hyperparameter tuning provided the best balance between accuracy and handling class imbalances. The final LSTM model achieved 94.3% accuracy, performing well on frequent medical encounters like general exams and check-ups but struggling with rare and critical cases such as emergency admissions, vaccinations, and death certifications. 
+
+To address these limitations the following are future changes that will be made:
+- Improve class balance (upsampling rare encounters, adjusting loss dynamically).  
+- Introduce more features (condition severity, medications, procedures).  
+- Experiment with new models (BiLSTM, Attention, Transformers).  
+- Begin development of LOS prediction model.
+
+Additionally, an outlined approach for predicting Length of Stay (LOS) was made. Potential models for LOS prediction include  Gradient Boosting for explainability and LSTM/GRU for capturing long-term trends.
+
 
 ### Fixing Up Website
 The website is currently being updated to improve upon some of its pages that look a bit rough around the edges. A new branch has also been created in order to work on the website from the branch before moving those new changes onto the main branch. That way, it would prevent errors from affecting the website in the main branch while also allowing for debugging to occur.
