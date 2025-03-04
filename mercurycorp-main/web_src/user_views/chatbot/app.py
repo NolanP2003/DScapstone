@@ -1,23 +1,3 @@
-"""
-this file contains the code for the Flask application that serves the chatbot API
-it uses the Sentence Transformer model to encode the questions and queries into 
-vectors for similarity search. The chatbot API receives a query from the frontend
-and returns the best answer from the dataset based on the similarity of the query
-to the questions in the dataset.
-
-The find_best_answer function takes a query as input, encodes the query using the 
-Sentence Transformer model, and then uses a FAISS index to find the most similar
-question in the dataset. It then returns the best answer along with the category
-of the question.
-
-The get_protocol route is the endpoint that receives the query from the frontend
-and returns the best answer in JSON format. The response includes the best answer
-formatted in HTML for better readability. The response also includes a status field
-to indicate the success or failure of the request. The message field contains the
-formatted answer. The app.run() method starts the Flask application on port 5000.
-"""
-
-
 from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
