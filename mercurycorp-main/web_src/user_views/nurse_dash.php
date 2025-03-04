@@ -371,28 +371,30 @@ try {
         <input type="text" id="user-message" placeholder="Type a message..." style="width: 80%; padding: 8px; border-radius: 5px;">
          <button id="send-message" style="padding: 8px; border-radius: 5px; background-color:blue; color: white;">Send</button>
 </div>
+<!-- Creating Chatbot Screen -->
 <script>
     document.getElementById('send-message').addEventListener('click', function() {
-        message = document.getElementById('user-message').value;
-        if (message.trim() != ""){
-            displayMessage('You:' + message);
-            fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: message }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayMessage('Chatbot: ' + data.response);
-                document.getElementById('user-message').value = '';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    });
+            const message = document.getElementById('user-message').value.trim();
+            if (message !== "") {
+                displayMessage('You: ' + message);
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displayMessage('Chatbot: ' + data.response);
+                    document.getElementById('user-message').value = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayMessage('Chatbot: An error occurred. Please try again.');
+                });
+            }
+        });
 
     function displayMessage(message) {
         var chatBox = document.getElementById('chat-box');
@@ -401,6 +403,12 @@ try {
         chatBox.appendChild(messageElement);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+    function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                document.getElementById('send-message').click();
+            }
+        }
         </script>
 <footer>
   <p> 2024 Mercury Corp. All rights reserved.</p>
