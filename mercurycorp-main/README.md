@@ -18,3 +18,10 @@ Softwares similar are available (Point Click Care) however they do not support a
 
 #### Chatbot:
 I changed up the chatbot so that it follows a MapReduce structure. I have not gotten it to work with MRJob yet, so I left it as is so that it provides a working example. I broke down that dataset a bit further and currently (offline without commits) have started trying to make an NLP model to better cipher through the data. Right now, it produces all the data that corresponds to the query, but in the future I want it better tailored towards the specific input. The formatting of the webpage is improved with additional CSS.
+
+
+
+## Updates for 3/10/25
+
+#### Chatbot:
+I created a few csv files to store the data from Masonic Village. I had to manually create these files in a well-formatted way, so that was a bit time consuming. Then, I created buttons that tell the chatbot to either use general health data like before, and now the Masonic data for issues related to Masonic Village. This application will allow Masonic Village to utilize our product. When you click Masonic Health, you will be prompted with more buttons to select from one of three of the areas of procedures that they have. If you select fall management, a box will appear asking if you have a keyword that needs defined (fall management was the only one with keyword definitions). If you do, you can type the keyword and it will output the definition or what the abbreviation stands for. If you don't need a keyword, it will continue to wait for user input until answering with the definition of the procedure that you name. Going forward, I will do this same process for the other two areas so that in the end, you can get a simple output all procedures that Masonic Village follows.
