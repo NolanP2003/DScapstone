@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="chatbot.css">
 </head>
 <body>
-    
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#">Medical Chatbot</a>
@@ -29,64 +28,233 @@
             </div>
         </div>
 
-        <!-- Masonic Policies Selection (Hidden initially) -->
         <div id="policy-selection" style="display: none; margin-top: 15px;">
             <label for="policy-type">Select a Masonic Policy:</label>
-            <select id="policy-type" class="form-control">
-                <option value="Falls Management">Falls Management</option>
-                <option value="Personal Belongings">Personal Belongings</option>
-                <option value="Neurological Checks">Neurological Checks</option>
-            </select>
+            <div class="quick-options">
+                <button class="btn btn-outline-primary" onclick="selectProcedure('Falls Procedure')">Falls Procedure</button>
+                <button class="btn btn-outline-primary" onclick="selectProcedure('Personal Belongings Procedure')">Personal Belongings Procedure</button>
+                <button class="btn btn-outline-primary" onclick="selectProcedure('Neurological Check Procedure')">Neurological Check Procedure</button>
+            </div>
         </div>
 
-        <div class="input-group mt-3">
-            <input type="text" id="user-message" class="form-control" placeholder="Ask a question..." onkeypress="handleKeyPress(event)">
+        <div id="keyword-selection" style="display: none; margin-top: 15px;">
+            <p>Do you need a keyword defined?</p>
+            <button class="btn btn-outline-primary" onclick="askForKeyword()">Yes</button>
+            <button class="btn btn-outline-primary" onclick="askForProcedure()">No</button>
+        </div>
+
+        <div id="keyword-input" style="display: none; margin-top: 15px;">
+            <label for="keyword-query">Type the keyword that needs defined:</label>
+            <input type="text" id="keyword-query" class="form-control" placeholder="Type keyword...">
+            <button class="btn btn-primary mt-2" onclick="sendKeywordQuery()">Get Definition</button>
+        </div>
+
+        <div id="procedure-name-input" style="display: none; margin-top: 15px;">
+            <label for="procedure-name">Enter the name of the procedure:</label>
+            <input type="text" id="procedure-name" class="form-control" placeholder="Enter procedure name...">
+            <button class="btn btn-primary mt-2" onclick="sendFallPolicy()">Get Policy</button>
+
+        <div class="input-group mt-3" id="question-input" style="display: none;">
+            <input type="text" id="user-message" class="form-control" placeholder="Ask about Falls Procedure..." onkeypress="handleKeyPress(event)">
             <button class="btn btn-primary" onclick="sendQuery()">Send</button>
         </div>
     </div>
 
     <script>
+        function sendFallsQuery() {
+            const procedure = document.getElementById("falls-procedure").value.trim();
+            if (procedure === '') {
+                alert("Please enter a fall procedure name.");
+                return;
+            }
+
+            fetch('http://localhost:5000/get_falls_policy', {
+                method: 'POST',
+                body: JSON.stringify({ procedure: procedure }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let chatBox = document.getElementById("chat-box");
+
+                if (data.Definition && data.Definition !== "No definition found for the keyword.") {
+                    chatBox.innerHTML += `<div class='bot-message text-start'>Bot: ${data.Definition}</div>`;
+                } else {
+                    chatBox.innerHTML += `<div class='bot-message text-start'>Bot: No definition found for that procedure.</div>`;
+                }
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
+            });
+        }
+
+
+        function selectProcedure(procedure) {
+            selectedProcedure = procedure;
+            document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: You selected ${procedure}. Please proceed.</div>`;
+
+            // Show keyword selection only for Falls Procedure
+            document.getElementById("keyword-selection").style.display = procedure === "Falls Procedure" ? "block" : "none";
+
+            // Hide keyword input and question input initially
+            document.getElementById("keyword-input").style.display = "none";
+            document.getElementById("question-input").style.display = procedure !== "Falls Procedure" ? "block" : "none";
+
+            // Reset procedure name input
+            document.getElementById("procedure-name-input").style.display = "none";
+            document.getElementById("procedure-name").value = "";
+        }
+
+        function askForProcedureName() {
+            document.getElementById("keyword-input").style.display = "none";
+            document.getElementById("question-input").style.display = "none";
+            document.getElementById("procedure-name-input").style.display = "block";
+        }
+    </script>
+
+    <script>
         let selectedCategory = "";
-        let selectedPolicy = "";
+        let selectedProcedure = "";
+        let keywordMode = "";
 
         function selectCategory(category) {
             selectedCategory = category;
             document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: You selected ${category}. Please proceed.</div>`;
 
-            if (category === "Masonic Policies") {
-                document.getElementById("policy-selection").style.display = "block";
-            } else {
-                document.getElementById("policy-selection").style.display = "none";
-            }
+            // Show or hide the policy selection
+            document.getElementById("policy-selection").style.display = category === "Masonic Policies" ? "block" : "none";
+
+            // Reset other selections
+            document.getElementById("keyword-selection").style.display = "none";
+            document.getElementById("keyword-input").style.display = "none";
+
+            // Ensure the input field is visible for General Health
+            document.getElementById("question-input").style.display = category === "General Health" ? "block" : "none";
+
+            // Reset selected procedure
+            selectedProcedure = "";
         }
 
-        function sendQuery() {
-            selectedPolicy = document.getElementById("policy-type").value;
-            const userMessageElement = document.getElementById("user-message");
-            const query = userMessageElement.value.trim();
 
-            if (query === '') {
-                alert("Please enter a query.");
+        function selectProcedure(procedure) {
+            selectedProcedure = procedure;
+            document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: You selected ${procedure}. Please proceed.</div>`;
+
+            // Show keyword selection only for Falls Procedure
+            document.getElementById("keyword-selection").style.display = procedure === "Falls Procedure" ? "block" : "none";
+
+            // Hide keyword input and question input initially
+            document.getElementById("keyword-input").style.display = "none";
+            document.getElementById("question-input").style.display = procedure !== "Falls Procedure" ? "block" : "none";
+        }
+
+        function askForKeyword() {
+            keywordMode = "define";
+            document.getElementById("keyword-input").style.display = "block";
+            document.getElementById("question-input").style.display = "none";
+        }
+
+        function askForProcedure() {
+            keywordMode = "procedure";
+            document.getElementById("keyword-input").style.display = "none";
+            document.getElementById("question-input").style.display = "none";
+            document.getElementById("procedure-name-input").style.display = "block";
+        }
+
+        function askForQuestion() {
+            keywordMode = "ask";
+            document.getElementById("keyword-input").style.display = "none";
+            document.getElementById("question-input").style.display = "block";
+        }
+
+
+        function sendKeywordQuery() {
+            const keyword = document.getElementById("keyword-query").value.trim();
+            if (keyword === '') {
+                alert("Please enter a keyword.");
                 return;
             }
 
-            const chatBox = document.getElementById("chat-box");
-            chatBox.innerHTML += `<div class='user-message text-end'>You: ${query}</div>`;
-            userMessageElement.value = '';
-
-            fetch('http://localhost:5000/get_protocol', {
+            fetch('http://localhost:5000/keyword_definition', {
                 method: 'POST',
-                body: JSON.stringify({ query: query, category: selectedCategory, policy: selectedPolicy }),
+                body: JSON.stringify({ keyword: keyword }),
                 headers: { 'Content-Type': 'application/json' }
             })
             .then(response => response.json())
             .then(data => {
-                chatBox.innerHTML += `<div class='bot-message text-start'>Bot: ${data.answer}</div>`;
+                let chatBox = document.getElementById("chat-box");
+                
+                // Ensure we output the correct definition or error message
+                if (data.Definition && data.Definition !== "No definition found for the keyword.") {
+                    chatBox.innerHTML += `<div class='bot-message text-start'>Bot: ${data.Definition}</div>`;
+                } else {
+                    chatBox.innerHTML += `<div class='bot-message text-start'>Bot: No definition found.</div>`;
+                }
+                
                 chatBox.scrollTop = chatBox.scrollHeight;
             })
             .catch(error => {
                 console.error('Error:', error);
-                chatBox.innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
+                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
+            });
+        }
+
+
+        function sendFallPolicy() {
+            const procedure = document.getElementById("procedure-name").value.trim();
+            if (procedure === '') {
+                alert("Please enter a procedure name.");
+                return;
+            }
+
+            fetch('http://localhost:5000/get_falls_policy', {
+                method: 'POST',
+                body: JSON.stringify({ procedure: procedure }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let chatBox = document.getElementById("chat-box");
+
+                if (data.Definition && data.Definition !== "No definition found for the keyword.") {
+                    chatBox.innerHTML += `<div class='bot-message text-start'>Bot: ${data.Definition}</div>`;
+                } else {
+                    chatBox.innerHTML += `<div class='bot-message text-start'>Bot: No definition found for that procedure.</div>`;
+                }
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
+            });
+        }
+
+
+        function sendQuery() {
+            const query = document.getElementById("user-message").value.trim();
+            if (query === '') {
+                alert("Please enter a query.");
+                return;
+            }
+            document.getElementById("chat-box").innerHTML += `<div class='user-message text-end'>You: ${query}</div>`;
+            document.getElementById("user-message").value = "";
+            fetch('http://localhost:5000/get_protocol', {
+                method: 'POST',
+                body: JSON.stringify({ query: query, procedure: selectedProcedure }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: ${data.answer}</div>`;
+                document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
             });
         }
 
@@ -96,6 +264,5 @@
             }
         }
     </script>
-
 </body>
 </html>

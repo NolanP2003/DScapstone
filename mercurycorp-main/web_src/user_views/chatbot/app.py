@@ -59,6 +59,94 @@ dimension = question_embeddings.shape[1]
 faiss_index = faiss.IndexFlatL2(dimension)
 faiss_index.add(question_embeddings)
 
+# load the keywords.csv file into a new dataframe
+keywords_df = pd.read_csv("masonicDocs/keywords.csv")
+
+# load the falls policies csv file into a new dataframe
+falls_policies_df = pd.read_csv("masonicDocs/falls_policy.csv")
+
+# if falls policies is selected, ask user if they need help with a keyword definition
+@app.route("/keyword_definition", methods=["POST"])
+def keyword_definition():
+    data = request.json
+    keyword = data.get("keyword", "").strip()
+    
+    if not keyword:
+        return jsonify({"Definition": "Please provide a keyword."})
+
+    # Ensure column names are in correct case & remove extra spaces
+    keywords_df.columns = keywords_df.columns.str.strip()
+    
+    if "Keyword" not in keywords_df.columns or "Definition" not in keywords_df.columns:
+        return jsonify({"Definition": "Error: Missing 'Keyword' or 'Definition' column in keywords.csv."})
+
+    # Convert column to lowercase & strip spaces for consistent searching
+    keywords_df["Keyword"] = keywords_df["Keyword"].astype(str).str.lower().str.strip()
+    keywords_df["Definition"] = keywords_df["Definition"].astype(str).str.strip()
+    
+    keyword_lower = keyword.lower().strip()
+
+    # Search for keyword (full match or partial match)
+    match = keywords_df[keywords_df["Keyword"].str.contains(keyword_lower, case=False, na=False)]
+
+    if not match.empty:
+        definition = match.iloc[0]["Definition"]
+
+        # Split the definition into sentences
+        sentence_list = re.split(r'(?<=[.!?])\s+', definition)  # Splits at periods, exclamations, or question marks
+
+        # Format the output
+        formatted_response = f"<strong>{keyword.capitalize()}:</strong><ul>"
+        for sentence in sentence_list:
+            if sentence.strip():  # Ignore empty strings
+                formatted_response += f"<li>{sentence.strip()}</li>"
+        formatted_response += "</ul>"
+
+        return jsonify({"Definition": formatted_response})
+
+    return jsonify({"Definition": "No definition found for the keyword."})
+
+
+# if falls policy and no keyword is selected, get user input and find response in falls policies csv
+@app.route("/get_falls_policy", methods=["POST"])
+def get_falls_policy():
+    data = request.json
+    procedure = data.get("procedure", "").strip()
+    
+    if not procedure:
+        return jsonify({"Definition": "Please provide a procedure name."})
+
+    # Ensure column names are correctly formatted
+    falls_policies_df.columns = falls_policies_df.columns.str.strip()
+
+    if "Procedure" not in falls_policies_df.columns or "Definition" not in falls_policies_df.columns:
+        return jsonify({"Definition": "Error: Missing 'Procedure' or 'Definition' column in falls_policy.csv."})
+
+    # Convert column to lowercase & strip spaces for consistent searching
+    falls_policies_df["Procedure"] = falls_policies_df["Procedure"].astype(str).str.lower().str.strip()
+    falls_policies_df["Definition"] = falls_policies_df["Definition"].astype(str).str.strip()
+
+    procedure_lower = procedure.lower().strip()
+
+    # Search for an exact or partial match
+    match = falls_policies_df[falls_policies_df["Procedure"].str.contains(procedure_lower, case=False, na=False)]
+
+    if not match.empty:
+        definition = match.iloc[0]["Definition"]
+        # Split the definition into bullet points
+        sentence_list = re.split(r'(?<=[.!?])\s+', definition)
+        # Format the output
+        formatted_response = f"<strong>{procedure.capitalize()}:</strong><ul>"
+        for sentence in sentence_list:
+            if sentence.strip():
+                formatted_response += f"<li>{sentence.strip()}</li>"
+        formatted_response += "</ul>"
+
+        return jsonify({"Definition": formatted_response})
+
+    return jsonify({"Definition": "No definition found for the procedure."})
+
+
 # Function to find the best answer for a given query
 # I added a bit of formatting to make the response more readable
 def find_best_answer(query):
