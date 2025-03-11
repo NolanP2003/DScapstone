@@ -377,24 +377,35 @@ try {
             const message = document.getElementById('user-message').value.trim();
             if (message !== "") {
                 displayMessage('You: ' + message);
-                fetch('/chat', {
+                fetch('send_query.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ message: message }),
+                    body: JSON.stringify({ query: message }),
                 })
                 .then(response => response.json())
                 .then(data => {
-                    displayMessage('Chatbot: ' + data.response);
-                    document.getElementById('user-message').value = '';
+                    if (data.answer) {
+                        displayMessage('Chatbot: ' + data.answer);
+                        document.getElementById('user-message').value = '';
+                    }
+                    else {
+                        displayMessage('Chatbot: Sorry. I could not find the answer you were looking for.')
+                        document.getElementById('user-message').value = '';
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    displayMessage('Chatbot: An error occurred. Please try again.');
+                    displayMessage('Chatbot: An error has occurred. Please try again.');
                 });
             }
-        });
+            else {
+            alert("Please enter a query.");
+            return;
+        }
+    });
+
 
     function displayMessage(message) {
         var chatBox = document.getElementById('chat-box');
@@ -409,7 +420,9 @@ try {
                 document.getElementById('send-message').click();
             }
         }
-        </script>
+    
+    document.getElementById('user-message').addEventListener('keypress', handleKeyPress);
+</script>
 <footer>
   <p> 2024 Mercury Corp. All rights reserved.</p>
   <p>Follow us on social media!</p>
