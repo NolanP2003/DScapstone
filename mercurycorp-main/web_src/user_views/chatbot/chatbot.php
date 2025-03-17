@@ -9,11 +9,6 @@
     <link rel="stylesheet" href="chatbot.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="#">Medical Chatbot</a>
-        </div>
-    </nav>
     
     <div class="chat-container">
         <h3 class="text-center">Chat with our Medical Assistant</h3>
