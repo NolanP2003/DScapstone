@@ -364,65 +364,41 @@ try {
 </table>
     </div>
         <br></br>
-<div id= "chat-container" style= "position: fixed; bottom: 20px;  right: 20px; width: 200px; height: 300px; background: white; border-radius: 8px;">
-    <div id="chat-box" style="height: 80%; overflow-y: scroll; background: white; border-radius: 5px; margin-bottom: 10px;">
 
-        </div>
-        <input type="text" id="user-message" placeholder="Type a message..." style="width: 80%; padding: 8px; border-radius: 5px;">
-         <button id="send-message" style="padding: 8px; border-radius: 5px; background-color:blue; color: white;">Send</button>
+<!-- chatbot button so we can expand and collapse -->
+<button id="chatbot-toggle" style="position: fixed; bottom: 20px; right: 20px; padding: 10px; background-color: blue; color: white; border: none; border-radius: 5px;">
+    Chatbot
+</button>
+
+<!-- html for chatbot popup window -->
+<div id="chatbot-popup" style="display: none; position: fixed; bottom: 80px; right: 20px; width: 380px; height: 500px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); border: 1px solid #ccc; overflow: hidden;">
+    <div class="chat-header" style="background: blue; color: white; padding: 10px; font-size: 18px; font-weight: bold; text-align: center; display: flex; justify-content: space-between; align-items: center;">
+        <span>Medical Chatbot</span>
+        <button id="chatbot-close" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+    </div>
+
+    <!-- use the chatbot.php file -->
+    <iframe id="chatbot-frame" src="chatbot/chatbot.php" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
-<!-- Creating Chatbot Screen -->
+
 <script>
-    document.getElementById('send-message').addEventListener('click', function() {
-            const message = document.getElementById('user-message').value.trim();
-            if (message !== "") {
-                displayMessage('You: ' + message);
-                fetch('send_query.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ query: message }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.answer) {
-                        displayMessage('Chatbot: ' + data.answer);
-                        document.getElementById('user-message').value = '';
-                    }
-                    else {
-                        displayMessage('Chatbot: Sorry. I could not find the answer you were looking for.')
-                        document.getElementById('user-message').value = '';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    displayMessage('Chatbot: An error has occurred. Please try again.');
-                });
-            }
-            else {
-            alert("Please enter a query.");
-            return;
-        }
+    // listen to button clicks and show/hide the chatbot popup
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatbotToggle = document.getElementById("chatbot-toggle");
+        const chatbotPopup = document.getElementById("chatbot-popup");
+        const chatbotClose = document.getElementById("chatbot-close");
+
+        chatbotToggle.addEventListener("click", function() {
+            chatbotPopup.style.display = chatbotPopup.style.display === "none" ? "block" : "none";
+        });
+
+        chatbotClose.addEventListener("click", function() {
+            chatbotPopup.style.display = "none";
+        });
     });
-
-
-    function displayMessage(message) {
-        var chatBox = document.getElementById('chat-box');
-        var messageElement = document.createElement('p');
-        messageElement.textContent = message;
-        chatBox.appendChild(messageElement);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                document.getElementById('send-message').click();
-            }
-        }
-    
-    document.getElementById('user-message').addEventListener('keypress', handleKeyPress);
 </script>
+
+    
 <footer>
   <p> 2024 Mercury Corp. All rights reserved.</p>
   <p>Follow us on social media!</p>
