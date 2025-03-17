@@ -100,11 +100,7 @@ header img {
     white-space: nowrap;
 }
 
-#question-input {
-    display: flex; /* Ensures proper alignment */
-    justify-content: center;
-    margin-top: 15px;
-}
+
 
 #user-message {
     width: 100%; /* Makes it take full width */
@@ -123,6 +119,15 @@ header img {
 }
 
 #question-input .btn-primary {
+    padding: 12px 16px; /* Makes button larger */
+    font-size: 16px; /* Increases text size */
+    border-radius: 8px; /* Matches input field */
+    background-color: #007bff; /* Standard blue */
+    border: none;
+    transition: background 0.3s ease-in-out;
+}
+
+#fall-question-input .btn-primary {
     padding: 12px 16px; /* Makes button larger */
     font-size: 16px; /* Increases text size */
     border-radius: 8px; /* Matches input field */
