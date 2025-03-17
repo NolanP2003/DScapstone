@@ -53,11 +53,14 @@
             <label for="procedure-name">Enter the name of the procedure:</label>
             <input type="text" id="procedure-name" class="form-control" placeholder="Enter procedure name...">
             <button class="btn btn-primary mt-2" onclick="sendFallPolicy()">Get Policy</button>
+        </div>
 
         <div class="input-group mt-3" id="question-input" style="display: none;">
-            <input type="text" id="user-message" class="form-control" placeholder="Ask about Falls Procedure..." onkeypress="handleKeyPress(event)">
+            <input type="text" id="user-message" class="form-control" placeholder="Enter your medical query..." onkeypress="handleKeyPress(event)">
             <button class="btn btn-primary" onclick="sendQuery()">Send</button>
         </div>
+
+
     </div>
 
     <script>
@@ -124,32 +127,40 @@
             selectedCategory = category;
             document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: You selected ${category}. Please proceed.</div>`;
 
-            // Show or hide the policy selection
-            document.getElementById("policy-selection").style.display = category === "Masonic Policies" ? "block" : "none";
+            if (category === "General Health") {
+                // clear previous things
+                document.getElementById("policy-selection").style.display = "none";
+                document.getElementById("keyword-selection").style.display = "none";
+                document.getElementById("keyword-input").style.display = "none";
+                document.getElementById("procedure-name-input").style.display = "none";
+                // show a unique input field that is only for this occurance
+                document.getElementById("question-input").style.display = "block";
 
-            // Reset other selections
-            document.getElementById("keyword-selection").style.display = "none";
-            document.getElementById("keyword-input").style.display = "none";
 
-            // Ensure the input field is visible for General Health
-            document.getElementById("question-input").style.display = category === "General Health" ? "block" : "none";
-
-            // Reset selected procedure
-            selectedProcedure = "";
+            } else if (category === "Masonic Policies") {
+                document.getElementById("policy-selection").style.display = "block";
+                document.getElementById("question-input").style.display = "none"; 
+            }
         }
+
 
 
         function selectProcedure(procedure) {
             selectedProcedure = procedure;
             document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: You selected ${procedure}. Please proceed.</div>`;
 
-            // Show keyword selection only for Falls Procedure
-            document.getElementById("keyword-selection").style.display = procedure === "Falls Procedure" ? "block" : "none";
+            document.getElementById("question-input").style.display = "none";
+            document.getElementById("procedure-name-input").style.display = "none";
 
-            // Hide keyword input and question input initially
-            document.getElementById("keyword-input").style.display = "none";
-            document.getElementById("question-input").style.display = procedure !== "Falls Procedure" ? "block" : "none";
+            if (procedure === "Falls Procedure") {
+                document.getElementById("keyword-selection").style.display = "block";
+                document.getElementById("question-input").style.display = "none";
+            } else {
+                document.getElementById("keyword-selection").style.display = "none";
+                document.getElementById("question-input").style.display = "block";
+            }
         }
+
 
         function askForKeyword() {
             keywordMode = "define";
@@ -233,6 +244,19 @@
             });
         }
 
+        function showTypingIndicator() {
+            let chatBox = document.getElementById("chat-box");
+            let typingIndicator = document.createElement("div");
+            typingIndicator.classList.add("bot-message", "typing-indicator");
+            typingIndicator.innerHTML = `<span></span><span></span><span></span>`;
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return typingIndicator;
+        }
+
+        function removeTypingIndicator(typingIndicator) {
+            typingIndicator.remove();
+        }
 
         function sendQuery() {
             const query = document.getElementById("user-message").value.trim();
@@ -240,8 +264,13 @@
                 alert("Please enter a query.");
                 return;
             }
-            document.getElementById("chat-box").innerHTML += `<div class='user-message text-end'>You: ${query}</div>`;
+
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<div class='user-message text-end'>You: ${query}</div>`;
             document.getElementById("user-message").value = "";
+
+            let typingIndicator = showTypingIndicator();
+
             fetch('http://localhost:5000/get_protocol', {
                 method: 'POST',
                 body: JSON.stringify({ query: query, procedure: selectedProcedure }),
@@ -249,14 +278,17 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: ${data.answer}</div>`;
-                document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
+                removeTypingIndicator(typingIndicator);
+                chatBox.innerHTML += `<div class='bot-message text-start'>Bot: ${data.answer}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById("chat-box").innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
+                removeTypingIndicator(typingIndicator);
+                chatBox.innerHTML += `<div class='bot-message text-start'>Bot: An error occurred. Please try again.</div>`;
             });
         }
+
 
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
