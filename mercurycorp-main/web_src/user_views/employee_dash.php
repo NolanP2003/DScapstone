@@ -10,11 +10,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if the user is logged in
-// if (!isset($_SESSION['emp_id'])) {
-//     header('Location: login.php'); // Redirect to login if not logged in
-//     exit;
-// }
+if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
+    // Redirect to the login page
+    header("Location: ../../web_src/login.php");
+    exit;
+}
 
 // Fetch employee details
 $username = $_SESSION['username'];
@@ -49,6 +49,30 @@ if (!$employee) {
     echo "Employee not found.";
     exit;
 }
+
+// Handle announcement submission (if user has permission)
+$announcementMessage = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $employee['department_id'] == 1) {
+    $announcement = $_POST['announcement'];
+    $insertStmt = $conn->prepare("INSERT INTO announcements (content) VALUES (?)");
+    $insertStmt->bind_param("s", $announcement);
+    if ($insertStmt->execute()) {
+        $announcementMessage = "Announcement updated successfully!";
+    } else {
+        $announcementMessage = "Failed to update announcement.";
+    }
+    $insertStmt->close();
+}
+
+// Fetch the latest announcement
+$latestAnnouncement = "";
+$announcementResult = $conn->query("SELECT content FROM announcements ORDER BY created_at DESC LIMIT 1");
+if ($announcementResult && $announcementResult->num_rows > 0) {
+    $rowAnnouncement = $announcementResult->fetch_assoc();
+    $latestAnnouncement = $rowAnnouncement['content'];
+}
+
+$conn->close();
 ?>
 
 <html lang="en">
@@ -56,93 +80,103 @@ if (!$employee) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--Bootstrap-->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-    crossorigin="anonymous"></script>
-  <!-- CSS Source-->
-  <link href="../style.css" rel="stylesheet">
-  <!-- Google Font API-->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Arima:wght@100..700&display=swap" rel="stylesheet">
-  <!-- JavaScript Source-->
-  <!-- <script src="main.js"></script> -->
-    <title>Employee Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CSS Source-->
+    <link href="../style.css" rel="stylesheet">
+    <!-- Google Font API-->
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Arima:wght@100..700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/d896ee4cb8.js" crossorigin="anonymous"></script>
     <title>Employee Dashboard</title>
 </head>
 <body>
 <header class="row">
-        <div class="col-1">
-          <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo">
-        </div>
-        <div class="col">
-          <h1 class = "abril-fatface-regular">Mercury</h1>
-        </div>
-      </header>  
-      <nav class="navbar navbar-expand-lg" style="background-color: rgb(133, 161, 170); height: 70px;">
+    <div class="col-1">
+        <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo">
+    </div>
+    <div class="col">
+        <h1 class="abril-fatface-regular">Mercury</h1>
+    </div>
+</header>  
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg" style="background-color: rgb(133, 161, 170); height: 70px;">
         <div class="container-fluid">
-    
-            
+            <!-- Navbar content collapses into a dropdown menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
-            <h3>Employee Dashboard</h3>
+                <ul class="navbar-nav me-auto">
+                <h3>Nurse Dashboard</h3>
+                </ul>
+
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="../index.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="patient_analysis.php">Patient Analysis</a></li>
+                    <li class="nav-item"><a class="nav-link" href="medical_records_dash.php">Medical Records</a></li>
+                    <li class="nav-item"><a class="nav-link" href="employee_dash.php">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li>
                     <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                 </ul>
-            </div>
+    </nav><br>
 
-            <!-- Home button on the far right -->
-
-            
-        </div>
-    </nav>
-    <br>
-    <!-- Employee Dashboard -->
+<!-- Welcome Message -->
+<div class="container mt-4">
     <h4>Welcome to your dashboard, <strong><?php echo htmlspecialchars($employee['first_name'] . " " . $employee['last_name']); ?></strong>!</h4>
-    <p>Your role: <strong><?php echo htmlspecialchars($employee['job_title']); ?></strong></p><br><br>
+    <p>Your role: <strong><?php echo htmlspecialchars($employee['job_title']); ?></strong></p>
+</div>
 
-
- <!-- Employee Information Card -->
- <section style="display: flex; justify-content: center; margin-bottom: 20px;">
-    <div class="card" style="width: 60%; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-      <h5 class="card-title" style="text-align: center;"><strong>Your Information</strong></h5>
-      <ul style="list-style: none; padding-left: 0;">
-        <li><strong>Full Name:</strong> <?php echo htmlspecialchars($employee['first_name'] . " " . $employee['last_name']); ?></li>
-        <li><strong>Job Title:</strong> <?php echo htmlspecialchars($employee['job_title']); ?></li>
-        <li><strong>Department:</strong> <?php echo htmlspecialchars($employee['dept_name']); ?></li>
-        <li><strong>Email:</strong> <?php echo htmlspecialchars($employee['email']); ?></li>
-        <li><strong>Phone:</strong> <?php echo htmlspecialchars($employee['mobile_no']); ?></li>
-        <li><strong>Salary:</strong> <?php echo htmlspecialchars("$" . number_format($employee['salary'], 2)); ?></li>
-        <li><strong>Hire Date:</strong> <?php echo htmlspecialchars($employee['hire_date']); ?></li>
-      </ul>
+<!-- Employee Information -->
+<section class="container mt-4">
+    <div class="card shadow-sm">
+        <!-- <div class="card-header" style="background-color: rgb(133, 161, 170); color: black; font-weight: bold">Your Information</div> -->
+        <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Full Name:</strong> <?php echo htmlspecialchars($employee['first_name'] . " " . $employee['last_name']); ?></li>
+                <li class="list-group-item"><strong>Job Title:</strong> <?php echo htmlspecialchars($employee['job_title']); ?></li>
+                <li class="list-group-item"><strong>Department:</strong> <?php echo htmlspecialchars($employee['dept_name']); ?></li>
+                <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($employee['email']); ?></li>
+                <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($employee['mobile_no']); ?></li>
+                <li class="list-group-item"><strong>Salary:</strong> <?php echo htmlspecialchars("$" . number_format($employee['salary'], 2)); ?></li>
+                <li class="list-group-item"><strong>Hire Date:</strong> <?php echo htmlspecialchars($employee['hire_date']); ?></li>
+            </ul>
+        </div>
     </div>
-  </section>
+</section>
+
+<!-- Announcements -->
+<section class="container mt-4">
+    <h3 class="text-center mb-4" style="font-weight: bold;">Latest Announcement</h3>
+
+    <div class="alert alert-info p-4 shadow-sm" style="border-radius: 8px; background-color: white; border-color: black; color: black;">
+        <h5 class="alert-heading" style="font-weight: bold;">Announcement:</h5>
+        <hr>
+        <p><?php echo htmlspecialchars($latestAnnouncement); ?></p>
+    </div>
+
+    <?php if ($employee['department_id'] == 1): ?>
+        <div class="card shadow-sm mt-4" style="border-radius: 8px;">
+            <div class="card-header" style="background-color: rgb(133, 161, 170); color: white; font-weight: bold;">
+                Create New Announcement
+            </div>
+            <div class="card-body">
+                <form method="POST" class="mt-3">
+                    <div class="form-group mb-3">
+                        <label for="announcement" class="form-label" style="font-weight: bold;">New Announcement:</label>
+                        <textarea name="announcement" class="form-control" rows="3" placeholder="Write your announcement here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" style="background-color: #4b38a1;">Update Announcement</button>
+                </form>
+                <?php if (!empty($announcementMessage)): ?>
+                    <div class="mt-2 alert alert-success text-center" style="margin-top: 10px;"><?php echo htmlspecialchars($announcementMessage); ?></div>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+</section>
 
 
-    <section style="text-align: center; margin-top: 20px;">
-        <h3>Announcements</h3>
-        <p><strong>Upcoming Holiday:</strong> The office will be closed on December 25th for Christmas.</p>
-        <p><strong>Employee of the month: </strong>Congratulations to <strong>Daniel Doe</strong> for outstanding performance and dedication!</p>
-    </section>
-
-    <footer>
-  <p> 2024 Mercury Corp. All rights reserved.</p>
-  <p>Follow us on social media!</p>
-    <a href="https://github.com/Laneyeh">
-  <img class="socialMediaIcon" src="../photos/facebook.png" alt="Facebook">
-</a>
-<a href="https://github.com/torrescschool">
-  <img class="socialMediaIcon" src="../photos/instagram.png" alt="Instagram">
-</a>
-<a href="https://github.com/Mildred1999">
-  <img class="socialMediaIcon" src="../photos/twitter.png" alt="Twitter">
-</a>
+<footer class="text-center mt-4">
+    <p>2024 Mercury Corp. All rights reserved.</p>
+    <p>Follow us on social media!</p>
 </footer>
 </body>
 </html>
