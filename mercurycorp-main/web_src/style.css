@@ -303,3 +303,72 @@ input, select, textarea {
     align-items: center;
     border-radius: 10px;
 }
+
+
+/* Loading screen styles */
+#loading-screen {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(133, 161, 170);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    overflow: hidden;
+}
+
+#logo-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#loading-logo {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    z-index: 10;
+}
+
+.large-circle {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #624bb6, #4b38a1);
+    opacity: 0.8;
+}
+
+.circle:nth-child(2) {
+    animation: rotate 2s linear infinite;
+}
+
+.circle:nth-child(3) {
+    animation: rotate 3s linear infinite reverse;
+}
+
+.circle:nth-child(4) {
+    animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes zoomOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(10);
+        opacity: 0;
+    }
+}
