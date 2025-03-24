@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("ss", $username, $hashedPassword);
             if ($stmt->execute()) {
                 $registrationSuccess = "Registration successful! You can now log in.";
-                header("Location: login.php");
+                header("Location: ../../../web_src/login.php");
                 exit;
             } else {
                 $registrationError = "Error! Please try again.";
