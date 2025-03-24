@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $role;
+            $_SESSION['just_logged_in'] = true;
 
             //redirect user based on role
             switch($role){
