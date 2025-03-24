@@ -15,3 +15,8 @@ Modeling is trying to e fixed for the encoder_code. This target was changed due 
 
 ### Fixing Up Website
 The website is currently being updated to improve upon some of its pages that look a bit rough around the edges. A new branch has also been created in order to work on the website from the branch before moving those new changes onto the main branch. That way, it would prevent errors from affecting the website in the main branch while also allowing for debugging to occur. Creation of a chatbot box on the nurse_dash.php page has been started in order to allow the nurses on the site to ask the chatbot questions if they need help. Chatbot can currently send responses back to user, but more work needs to be done in order to ensure no errors with chatbot code. Since there are certain responses to questions that the chatbot doesn't have any answers to, an automatic prompt is now given to let the user know that the chatbot can't answer the question in order to avoid the chatbot replying with an error.
+
+
+
+### Git Commit 6:
+Jackson and Nolan spent a lot of time this week making the website look more professional and structured. The overall user interface is improved with connections into the database to allow for accurate displays on the website. Employees who belong in Dept_ID 1 can now post announcements to the announcement board on the profile page. The tables and forms have been improved to make it as intuitive as possible for employees to fill out. As far as the chatbot goes, Jackson has improved the user interface a bit to make it easier to use. 
