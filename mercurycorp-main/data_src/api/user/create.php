@@ -6,29 +6,48 @@ include('../../includes/db_config.php');  // Include the database connection
 // Create database connection 
 $mysqli = new mysqli($host, $dbUsername, $dbPassword, $database);
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $id = $_POST['id'];
-    // Hash the password for security
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
     // Initialize the role variable
     $role = null;
+// Handle form submission  
+$username = $password = $confirmPassword = "";
+$registrationError = $registrationSuccess = "";
 
-    // Step 1: Check if the username already exists in the users table
-    $checkUserSql = "SELECT * FROM users WHERE username = ?";
-    $stmt = $mysqli->prepare($checkUserSql);
-    $stmt->bind_param("s", $username); // Bind the username parameter
-    $stmt->execute();
-    $result = $stmt->get_result();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = $_POST['password'];
+    $confirmPassword = $_POST['confirm_password'];
 
-    if ($result->num_rows > 0) {
-        // If the username already exists, show an error
-        $error = "An account already exists for this username.";
-        echo $error . "<br>";
+    if ($password !== $confirmPassword) {
+        $registrationError = "Passwords do not match.";
     } else {
+        $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $registrationError = "Username already exists.";
+        } else {
+              // Hash the password for security
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+            $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $username, $hashedPassword);
+            if ($stmt->execute()) {
+                $registrationSuccess = "Registration successful! You can now log in.";
+                header("Location: login.php");
+                exit;
+            } else {
+                $registrationError = "Error! Please try again.";
+            }
+        }
+
+        $stmt->close();
+    }
+}
+      /*
         // Step 2: Determine the role based on the ID
         
             // Check if the id exists in the physicians table
@@ -102,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Please enter a valid username and ID.";
             
         }
-    }
+    } */
 
 
  ?>
@@ -165,8 +184,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-group mb-4">
-                    <label for="id" class="form-label"><strong>Enter Identifying Number:</strong></label>
-                    <input type="text" id="id" name="id" class="form-control" required>
+                    <label for="confirm_password" class="form-label"><strong>Confirm Password:</strong></label>
+                    <input type="password" id="Confirm Password" name="confirm_password" class="form-control" required>
                 </div>
         
                 <button type="submit" class="btn btn-primary w-100" >Create User</button>
