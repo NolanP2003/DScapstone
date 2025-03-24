@@ -258,6 +258,7 @@ try {
 
             <label for="new_medication_refused">Medication Refused:</label>
             <input type="checkbox" name="new_medication_refused">
+            <br>
 
             <!-- Dropdown for Physician Order ID -->
             <label for="new_order_id">Physician Order:</label>
@@ -269,7 +270,8 @@ try {
                     </option>
                 <?php endforeach; ?>
             </select>
-
+            <br>
+            
             <label for="new_emp_id">Employee ID (Administered by):</label>
             <input type="number" name="new_emp_id" required>
 
@@ -296,7 +298,8 @@ try {
 
         <label for="end_date">End Date:</label>
         <input type="date" name="end_date">
-
+        <br>
+        
         <label for="instructions">Instructions:</label>
         <div class="input-container">
             <textarea name="instructions"></textarea>
