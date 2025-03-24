@@ -7,6 +7,12 @@ if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
     exit;
 }
 
+// Show the loading animation only if just logged in
+$showLoading = isset($_SESSION['just_logged_in']);
+if ($showLoading) {
+    unset($_SESSION['just_logged_in']); // Reset the flag after showing the animation
+}
+
 include('../../data_src/includes/db_config.php');
 
 
@@ -140,6 +146,30 @@ try {
 </head>
 
 <body>
+
+    <?php if ($showLoading): ?>
+    <!-- Full-screen loading animation -->
+    <div id="loading-screen">
+        <div id="logo-container">
+            <img src="../photos/mercuryCorpLogo.png" alt="Mercury Logo" id="loading-logo">
+            <div class="circle large-circle"></div>
+            <div class="circle large-circle"></div>
+            <div class="circle large-circle"></div>
+        </div>
+    </div>
+
+    <script>
+        // Hide the loading screen after the page fully loads
+        window.addEventListener("load", function() {
+            const loadingScreen = document.getElementById("loading-screen");
+            loadingScreen.style.animation = "zoomOut 1s ease forwards";
+            setTimeout(() => {
+                loadingScreen.style.display = "none";
+            }, 1000);
+        });
+    </script>
+    <?php endif; ?>
+
     <!-- Header -->
     <header class="row">
         <div class="col-1">
