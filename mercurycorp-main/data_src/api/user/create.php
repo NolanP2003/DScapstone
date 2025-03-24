@@ -13,7 +13,7 @@ $username = $password = $confirmPassword = "";
 $registrationError = $registrationSuccess = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirm_password'];
 
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $registrationError = "Passwords do not match.";
     } else {
         $sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-        $stmt = $conn->prepare($sql);
+        $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-            $stmt = $conn->prepare($sql);
+            $stmt = $mysqli->prepare($sql);
             $stmt->bind_param("ss", $username, $hashedPassword);
             if ($stmt->execute()) {
                 $registrationSuccess = "Registration successful! You can now log in.";
@@ -173,6 +173,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="white-box text-center" style="background-color: white; padding: 70px; width: 500px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
         <div class="container mt-5">
             <form method="POST" action="">
+            <?php if ($registrationError): ?>
+            <div class="w3-text-red">
+                <p><?php echo $registrationError; ?></p>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($registrationSuccess): ?>
+            <div class="w3-text-green">
+                <p><?php echo $registrationSuccess; ?></p>
+            </div>
+        <?php endif; ?>
                 <div class="form-group mb-3">
                     <label for="username" class="form-label"><strong>Username:</strong></label>
                     <input type="text" id="username" name="username" class="form-control" required>
