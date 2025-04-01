@@ -466,69 +466,39 @@ try {
     </div>
 
 
-<!-- chatbot button to expand and collapse -->
-<button id="chatbot-toggle" style="position: fixed; bottom: 20px; right: 20px; padding: 10px; background-color: blue; color: white; border: none; border-radius: 5px;">
-    Chatbot
-</button>
-
-<!-- chatbot popup window -->
-<div id="chatbot-popup" style="display: none; position: fixed; bottom: 150px; right: 20px; width: 380px; height: 500px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); border: 1px solid #ccc; overflow: hidden;">
-    <div id="chat-header" style="background: blue; color: white; padding: 10px; font-size: 18px; font-weight: bold; text-align: center; display: flex; justify-content: space-between; align-items: center; cursor: move;">
-        <span>Medical Chatbot</span>
-        <button id="chatbot-close" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+<!-- beginning of chatbot stuff -->
+    <div class="chatbot-content-area">
+        <?php
+        // Include the chatbot content from chatbot.php
+        $chatbotPath = __DIR__ . '/chatbot/chatbot.php';
+        if (file_exists($chatbotPath)) {
+            include_once $chatbotPath;
+        } else {
+            echo '<div class="alert alert-danger m-3" role="alert">Error: Chatbot components could not be loaded. File not found.</div>';
+        }
+        ?>
     </div>
 
-    <!-- use the chatbot.php file -->
-    <iframe id="chatbot-frame" src="chatbot/chatbot.php" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
 
 <script>
-    // Listen to button clicks and show/hide the chatbot popup
     document.addEventListener("DOMContentLoaded", function() {
         const chatbotToggle = document.getElementById("chatbot-toggle");
         const chatbotPopup = document.getElementById("chatbot-popup");
         const chatbotClose = document.getElementById("chatbot-close");
 
         chatbotToggle.addEventListener("click", function() {
-            chatbotPopup.style.display = chatbotPopup.style.display === "none" ? "block" : "none";
-        });
-
-        chatbotClose.addEventListener("click", function() {
-            chatbotPopup.style.display = "none";
-        });
-
-        const chatHeader = document.getElementById("chat-header");
-
-        let xPos, yPos, isDragging = false;
-
-        chatHeader.addEventListener("mousedown", function(e) {
-            isDragging = true;
-            xPos = e.clientX - chatbotPopup.getBoundingClientRect().left;
-            yPos = e.clientY - chatbotPopup.getBoundingClientRect().top;
-            chatHeader.style.cursor = 'move';
-        });
-
-        document.addEventListener("mousemove", function(e) {
-            if (isDragging) {
-                const x = e.clientX - xPos;
-                const y = e.clientY - yPos;
-                const xMax = window.innerWidth - chatbotPopup.offsetWidth;
-                const yMax = window.innerHeight - chatbotPopup.offsetHeight;
-                chatbotPopup.style.left = `${Math.min(Math.max(x, 0), xMax)}px`;
-                chatbotPopup.style.top = `${Math.min(Math.max(y, 0), yMax)}px`;
-
-                chatbotPopup.style.right = '';
-                chatbotPopup.style.bottom = '';
-            }
-        });
-
-        document.addEventListener("mouseup", function() {
-            isDragging = false;
-            chatHeader.style.cursor = 'default';
+            const isHidden = chatbotPopup.style.display === "none";
+            chatbotPopup.style.display = isHidden ? "block" : "none";
+            chatbotToggle.setAttribute('aria-label', isHidden ? 'Close Chatbot' : 'Open Chatbot');
         });
         
+        chatbotClose.addEventListener("click", function() {
+            chatbotPopup.style.display = "none";
+            chatbotToggle.setAttribute('aria-label', 'Open Chatbot');
+        });
     });
 </script>
+<!-- end of chatbot stuff -->
 
     
 <footer>
