@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // verify the password
         if (password_verify($password, $user['password'])){
             // get the user role
-            $role = $user['role'];
+           // $role = $user['role'];
 
             //store user information in session
             $_SESSION['user_id'] = $user['id'];
@@ -43,14 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 case 'Resident':
                     header("Location: ../../../web_src/user_views/resident_dash.php");
                     break;
-                case 'Nursing':
-                    header("Location: ../../../web_src/user_views/nurse_dash.php");
-                    break;
+                //case 'Nursing':
+                    //header("Location: ../../../web_src/user_views/nurse_dash.php");
+                    //break;
                 case 'HR':
                     header("Location: ../../../web_src/user_views/hr_view/hr_dash.php");
                     break;
                 default:
-                    header("Location: ../../../web_src/user_views/employee_dash.php");
+                    header("Location: ../../../web_src/user_views/nurse_dash.php");
                     break;
             }
             exit;
