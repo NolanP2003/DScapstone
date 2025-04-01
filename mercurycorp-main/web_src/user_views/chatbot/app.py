@@ -1,221 +1,227 @@
-from flask import Flask, request, jsonify
-import pandas as pd
-import numpy as np
-import faiss
 import os
 import re
-from sentence_transformers import SentenceTransformer
+import pandas as pd
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+from openai import OpenAI
+from dotenv import load_dotenv
 
-# Initialize Flask application
+# Load environment variables from .env file
+load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 
-# Loading the Sentence Transformer model
-# this model is used to encode the questions and queries into vectors for similarity search
-print("Loading sentence transformer model...")
-model = SentenceTransformer("all-MiniLM-L6-v2")
+MASONIC_DATA_FOLDER = 'masonicDocs'
+CSV_FILES = [
+    'falls_policy.csv',
+    'keywords.csv',
+    'neurological_checks_policy.csv',
+    'personal_belongings_policy.csv'
+]
 
-# Constants for data and embeddings
-DATA_FOLDER = "chatbotData"
-EMBEDDINGS_FILE = "question_embeddings.npy"
-CSV_DATA_FILE = "merged_data.csv"
+# initializing OpenAI
+ai_client = None
+try:
+    # getting API key from env file
+    openai_api_key = os.getenv('OPENAI_API_KEY')
 
-# Load the dataset
-if not os.path.exists(CSV_DATA_FILE):
-    all_data = []
-    for file in os.listdir(DATA_FOLDER):
-        if file.endswith(".csv"):
-            df = pd.read_csv(os.path.join(DATA_FOLDER, file))
-            all_data.append(df)
+    if not openai_api_key:
+        print("ERROR: OPENAI_API_KEY environment variable not set or empty in .env file.")
+    else:
+        ai_client = OpenAI(api_key=openai_api_key)
+        print("OpenAI client initialized successfully.")
+        
+except Exception as e:
+    print(f"Error initializing OpenAI client: {e}")
 
-    df = pd.concat(all_data, ignore_index=True)
-    df.drop(columns=["split"], errors="ignore", inplace=True)
-    df.to_csv(CSV_DATA_FILE, index=False)  # Save for future use
-else:
-    df = pd.read_csv(CSV_DATA_FILE)
+'''
+this function is used to load the data for the masonic questions
+it takes no input and returns a dictionary of dataframes
+'''
+def load_masonic_data():
+    dataframes = {}
+    # get the current directory
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    # get the path of the masonic data folder
+    data_path = os.path.join(base_dir, MASONIC_DATA_FOLDER)
 
-# checking for the correct columns
-if not all(col in df.columns for col in ["Question", "Answer", "topic"]):
-    raise ValueError("Missing required columns in dataset: 'Question', 'Answer', 'topic'")
+    if not os.path.isdir(data_path):
+        print(f"Error: Masonic data folder not found at {data_path}")
+        return {}
 
-# turning the columns into lists
-questions = df["Question"].astype(str).tolist()
-answers = df["Answer"].astype(str).tolist()
-qtypes = df["topic"].astype(str).tolist()
+    try:
+        for filename in CSV_FILES:
+            # creates file path for each file
+            filepath = os.path.join(data_path, filename)
+            if os.path.exists(filepath):
+                try:
+                    # creates a pandas df for each file
+                    df = pd.read_csv(filepath, dtype={'Procedure': str, 'Definition': str})
+                    df['Procedure_lower'] = df['Procedure'].str.lower().str.strip()
+                    dataframes[filename] = df
+                    
+                # gives error message if the file is not found
+                except Exception as e:
+                     print(f"Error reading or processing CSV file {filename}: {e}")
 
-# loading the precomputed embeddings if they exist
-if os.path.exists(EMBEDDINGS_FILE):
-    print("Loading precomputed embeddings...")
-    question_embeddings = np.load(EMBEDDINGS_FILE).astype(np.float32)
-else:
-    print("Generating new question embeddings...")
-    question_embeddings = model.encode(questions, convert_to_tensor=False, show_progress_bar=True)
-    np.save(EMBEDDINGS_FILE, question_embeddings)
-
-# creating a FAISS index for similarity search
-# FAISS is a library for efficient similarity search and clustering of dense vectors
-dimension = question_embeddings.shape[1]
-faiss_index = faiss.IndexFlatL2(dimension)
-faiss_index.add(question_embeddings)
-
-# load the keywords.csv file into a new dataframe
-keywords_df = pd.read_csv("masonicDocs/keywords.csv")
-
-# load the falls policies csv file into a new dataframe
-falls_policies_df = pd.read_csv("masonicDocs/falls_policy.csv")
-
-# if falls policies is selected, ask user if they need help with a keyword definition
-@app.route("/keyword_definition", methods=["POST"])
-def keyword_definition():
-    data = request.json
-    keyword = data.get("keyword", "").strip()
+            else:
+                # data not found at the path
+                print(f"Warning: CSV file not found at {filepath}")
+                
+        return dataframes
     
-    if not keyword:
-        return jsonify({"Definition": "Please provide a keyword."})
+    except Exception as e2:
+        # data did not load correctly
+        print(f"Error loading Masonic data: {e2}")
+        return {}
 
-    # Ensure column names are in correct case & remove extra spaces
-    keywords_df.columns = keywords_df.columns.str.strip()
-    
-    if "Keyword" not in keywords_df.columns or "Definition" not in keywords_df.columns:
-        return jsonify({"Definition": "Error: Missing 'Keyword' or 'Definition' column in keywords.csv."})
+masonic_data = load_masonic_data()
 
-    # Convert column to lowercase & strip spaces for consistent searching
-    keywords_df["Keyword"] = keywords_df["Keyword"].astype(str).str.lower().str.strip()
-    keywords_df["Definition"] = keywords_df["Definition"].astype(str).str.strip()
-    
-    keyword_lower = keyword.lower().strip()
+"""
+this function splits the text into sentences based on common delimiters
+"""
+def split_into_sentences(text):
+    sentences = re.split(r'(?<=[.!?])(?:\s+|\n+|$)|(?<=\n)(?=\d+\.\s|\* |- |\u2022\s)', text)
+    return [s.strip() for s in sentences if s and s.strip()]
 
-    # Search for keyword (full match or partial match)
-    match = keywords_df[keywords_df["Keyword"].str.contains(keyword_lower, case=False, na=False)]
+"""
+this function searches the masonic data for keywords from the user input
+if a procedure in the masonic data contains a keyword from the user input
+then the definition of that procedure is added to the list of definitions
+"""
+def find_masonic_definitions(user_input):
+    definitions = []
+    user_input_lower = user_input.lower()
+    user_words = set(re.findall(r'\b\w{3,}\b', user_input_lower))
 
-    if not match.empty:
-        definition = match.iloc[0]["Definition"]
+    if not masonic_data:
+        return ["Sorry, I couldn't load the Masonic policy data. Please check server logs."]
 
-        # Split the definition into sentences
-        sentence_list = re.split(r'(?<=[.!?])\s+', definition)  # Splits at periods, exclamations, or question marks
+    found_match = False
+    matched_procedures_lower = set()
 
-        # Format the output
-        formatted_response = f"<strong>{keyword.capitalize()}:</strong><ul>"
-        for sentence in sentence_list:
-            if sentence.strip():  # Ignore empty strings
-                formatted_response += f"<li>{sentence.strip()}</li>"
-        formatted_response += "</ul>"
+    for filename, df in masonic_data.items():
+        for index, row in df.iterrows():
+            try:
+                procedure_text_lower = row['Procedure_lower']
+                original_procedure_text = row['Procedure']
+                definition_text = row['Definition']
 
-        return jsonify({"Definition": formatted_response})
+                # if a user input word is in the procedure text and the procedure text has not been matched before then add the definition to the list
+                if any(word in procedure_text_lower for word in user_words):
+                    if procedure_text_lower not in matched_procedures_lower:
+                        sentences = split_into_sentences(definition_text)
+                        if sentences:
+                            definitions.extend(sentences)
+                            matched_procedures_lower.add(procedure_text_lower)
+                            found_match = True
+                        else:
+                             print(f"Warning: Matched procedure '{original_procedure_text}' in {filename} but its definition was empty or unsplittable.")
+            except Exception as row_e:
+                 print(f"Error processing row {index} in {filename}: {row_e}")
 
-    return jsonify({"Definition": "No definition found for the keyword."})
+    if not found_match:
+        # prints if the user input does not match any of the procedures
+        return ["I couldn't find specific information related to your query in the Masonic policies. Could you please rephrase or ask about a different topic?"]
 
-
-# if falls policy and no keyword is selected, get user input and find response in falls policies csv
-@app.route("/get_falls_policy", methods=["POST"])
-def get_falls_policy():
-    data = request.json
-    procedure = data.get("procedure", "").strip()
-    
-    if not procedure:
-        return jsonify({"Definition": "Please provide a procedure name."})
-
-    # Ensure column names are correctly formatted
-    falls_policies_df.columns = falls_policies_df.columns.str.strip()
-
-    if "Procedure" not in falls_policies_df.columns or "Definition" not in falls_policies_df.columns:
-        return jsonify({"Definition": "Error: Missing 'Procedure' or 'Definition' column in falls_policy.csv."})
-
-    # Convert column to lowercase & strip spaces for consistent searching
-    falls_policies_df["Procedure"] = falls_policies_df["Procedure"].astype(str).str.lower().str.strip()
-    falls_policies_df["Definition"] = falls_policies_df["Definition"].astype(str).str.strip()
-
-    procedure_lower = procedure.lower().strip()
-
-    # Search for an exact or partial match
-    match = falls_policies_df[falls_policies_df["Procedure"].str.contains(procedure_lower, case=False, na=False)]
-
-    if not match.empty:
-        definition = match.iloc[0]["Definition"]
-        # Split the definition into bullet points
-        sentence_list = re.split(r'(?<=[.!?])\s+', definition)
-        # Format the output
-        formatted_response = f"<strong>{procedure.capitalize()}:</strong><ul>"
-        for sentence in sentence_list:
-            if sentence.strip():
-                formatted_response += f"<li>{sentence.strip()}</li>"
-        formatted_response += "</ul>"
-
-        return jsonify({"Definition": formatted_response})
-
-    return jsonify({"Definition": "No definition found for the procedure."})
+    unique_definitions = list(dict.fromkeys(definitions))
+    return unique_definitions
 
 
-# Function to find the best answer for a given query
-# I added a bit of formatting to make the response more readable
-def find_best_answer(query):
-    query_embedding = model.encode([query], convert_to_tensor=False, normalize_embeddings=True)
-    query_embedding = np.array(query_embedding, dtype=np.float32)
-    _, closest_index = faiss_index.search(query_embedding, 1)
-    
-    best_match = df.iloc[closest_index[0][0]]
-    best_answer = best_match["Answer"]
-    best_qtype = best_match["topic"]
+"""
+this function uses the OpenAI API to answer general health questions
+the logic is handled by AI based on the prompt, not forced by Python code
+"""
+def get_general_health_response(user_input):
+    if not ai_client:
+         return ["Sorry, the AI assistant is currently unavailable. Please check the server configuration or try again later."]
 
-    # these variables are used to create a unique ID for the hidden section
-    unique_id = f"moreAnswers_{np.random.randint(10000, 99999)}"
-    button_id = f"showMoreBtn_{np.random.randint(10000, 99999)}"
+    # --- Construct the Prompt for the AI ---
+    system_prompt = """You are a helpful AI assistant embedded in a chatbot on a medical website.
+Your purpose is to provide general health information clearly and concisely.
 
-    # using HTML to format the response
-    formatted_answer = f"""
-    <div style="font-family: Arial, sans-serif; color: #333; padding: 15px; line-height: 1.8; background-color: #f8f9fa; border-radius: 10px; border: 1px solid #dcdcdc;">
-        <h3 style="color: #1d68a7; margin-bottom: 10px; font-size: 1.25em;">📌 <strong>Category:</strong> <span style="color: #ff6600;">{best_qtype}</span></h3>
-        <p><strong>Response:</strong></p>
-        <ul id="answerList" style="background: #ffffff; padding: 15px; border-radius: 10px; border: 1px solid #dcdcdc; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+**Key Instructions:**
+1.  **Analyze the User's Question:** Understand the core health topic the user is asking about.
+2.  **Provide General Information:** Offer factual, easy-to-understand information related to the question.
+3.  **DO NOT DIAGNOSE:** Never attempt to diagnose medical conditions.
+4.  **DO NOT PRESCRIBE/RECOMMEND TREATMENT:** Do not suggest specific medications, therapies, or treatment plans.
+5.  **MANDATORY DISCLAIMER:** ALWAYS conclude your response by strongly advising the user to consult a qualified healthcare professional for personal medical advice, diagnosis, or treatment. State the disclaimer clearly and directly. Example: "Remember, this is general information. Please consult with a qualified healthcare provider for personal health concerns."
+6.  **Keep it Concise:** Aim for brief, informative answers (around 2-4 clear sentences before the disclaimer unless the question requires more detail). Avoid overly long explanations.
+7.  **Format for Clarity:** Use clear sentence structure. The calling code will handle splitting into list items.
+"""
+
+    user_message_content = f"User question: '{user_input}'"
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_message_content}
+    ]
+
+    try:
+        completion = ai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            max_tokens=200,
+            temperature=0.5,
+            n=1,
+            stop=None
+        )
+        raw_ai_answer = completion.choices[0].message.content.strip()
+        response_sentences = split_into_sentences(raw_ai_answer)
+        response_sentences = [s for s in response_sentences if s]
+
+        if not response_sentences or "cannot provide medical advice" in raw_ai_answer.lower() or len(raw_ai_answer) < 50:
+             return ["I understand you're asking about that topic. However, as an AI, I cannot provide specific medical advice or diagnosis."]
+
+        final_response = response_sentences
+
+        return final_response
+
+    except Exception as e:
+        print(f"Error calling OpenAI API: {e}")
+        return ["Sorry, I encountered an issue while trying to generate a response. This might be a temporary problem. Please try asking again in a moment."]
+
+
+@app.route('/chat', methods=['POST'])
+def chat_endpoint():
     """
+    this function is the endpoint for the chatbot
+    it takes a JSON input and returns a JSON output
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'reply': ["Invalid request format."]}), 400
 
-    # splitting the answers based on punctuation marks for better readability
-    answer_chunks = re.split(r'(?<=\.|\!|\?)\s+', best_answer)
-    displayed_chunks = answer_chunks[:5]  # showing the first 5 responses
+        user_message = data.get('message', '').strip()
+        # mode will be equal to 'general' or 'masonic'
+        mode = data.get('mode')
 
-    # formatting the displayed answers
-    for chunk in displayed_chunks:
-        if len(chunk.strip()) > 0:
-            formatted_answer += f"""
-                <li style="margin-bottom: 10px; font-size: 1em; color: #333;">
-                    <span style="color: #28a745;">✅</span> <span style="font-weight: 500;">{chunk.strip()}</span>
-                </li>
-            """
-    
-    # I made a hidden section for the remaining answers to avoid overflowing the webpage
-    if len(answer_chunks) > 5:
-        formatted_answer += f'<div id="{unique_id}" style="display: none; padding-top: 10px;">'
-        for chunk in answer_chunks[5:]:
-            if len(chunk.strip()) > 0:
-                formatted_answer += f"""
-                    <li style="margin-bottom: 10px; font-size: 1em; color: #333;">
-                        <span style="color: #17a2b8;">🔹</span> {chunk.strip()}
-                    </li>
-                """
-        formatted_answer += '</div>'
+        if not user_message:
+            return jsonify({'reply': ["Please type a question."]})
+        if not mode or mode not in ['general', 'masonic']:
+             return jsonify({'reply': ["Error: Invalid mode specified. Choose 'General Health' or 'Masonic Policies'."]}), 400
 
-        # show more button
-        formatted_answer += f"""
-        <button id="{button_id}" onclick="document.getElementById('{unique_id}').style.display='block'; this.style.display='none';" 
-        style="margin-top: 15px; padding: 8px 16px; background-color: #1d68a7; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">
-            Show More ⬇
-        </button>
-        """
 
-    formatted_answer += "</ul></div>"
-    return formatted_answer
+        reply_content = []
+        if mode == 'general':
+            reply_content = get_general_health_response(user_message)
+        elif mode == 'masonic':
+            reply_content = find_masonic_definitions(user_message)
 
-@app.route("/get_protocol", methods=["POST"])
-def get_protocol():
-    data = request.json
-    query = data.get("query", "").strip()
+        if not isinstance(reply_content, list):
+            reply_content = [str(reply_content)]
+        reply_content = [item for item in reply_content if isinstance(item, str) and item]
 
-    if not query:
-        return jsonify({"answer": "Please ask a question.", "status": "error", "message": "No query provided."})
+        if not reply_content:
+            reply_content = ["Sorry, I could not find an answer for that."]
 
-    best_answer = find_best_answer(query)
-    return jsonify({"answer": best_answer, "status": "success", "message": best_answer})
+        return jsonify({'reply': reply_content})
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    except Exception as e:
+        return jsonify({'reply': ["Sorry, an unexpected server error occurred. Please try again later."]}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)
