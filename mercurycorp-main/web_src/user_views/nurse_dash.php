@@ -139,6 +139,7 @@ try {
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <!-- Custom CSS -->
     <link href="../style.css" rel="stylesheet">
+    <link rel="stylesheet" href="chatbot/chatbot.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Arima:wght@100..700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
