@@ -14,10 +14,7 @@ CORS(app)
 
 MASONIC_DATA_FOLDER = 'masonicDocs'
 CSV_FILES = [
-    'falls_policy.csv',
-    'keywords.csv',
-    'neurological_checks_policy.csv',
-    'personal_belongings_policy.csv'
+    'masonicData.csv'
 ]
 
 # initializing OpenAI
