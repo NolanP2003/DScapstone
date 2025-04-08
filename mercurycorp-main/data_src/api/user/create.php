@@ -198,6 +198,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="confirm_password" class="form-label"><strong>Confirm Password:</strong></label>
                     <input type="password" id="Confirm Password" name="confirm_password" class="form-control" required>
                 </div>
+                
+                <div class="form-group mb-3">
+                    <label for="id" class="form-label"><strong>User ID:</strong></label>
+                    <input type="text" id="id" name="id" class="form-control" required>
+                </div>
         
                 <button type="submit" class="btn btn-primary w-100" >Create User</button>
                 <br><br><br>
