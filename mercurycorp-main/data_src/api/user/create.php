@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Step 2: Determine the role based on the ID
         
             // Check if the id exists in the physicians table
-            $sqlPhysician = "SELECT * FROM physician WHERE physician_id = ? AND email = ?";
+            $sqlPhysician = "SELECT * FROM physician WHERE physician_id = ?";
             $stmtPhysician = $mysqli->prepare($sqlPhysician);
 
             // echo "ID: $id, Username: $username<br>";
@@ -73,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 // echo "No match found in the physician table for ID: $id and email: $username.<br>";//debug
                 // Check if the id exists in the employees table and get department name
-                $sqlEmployeeDept = "SELECT e.emp_id, e.email, e.department_id, d.dept_name
+                $sqlEmployeeDept = "SELECT e.emp_id, e.department_id, d.dept_name
                                     FROM employees e
                                     JOIN departments d ON e.department_id = d.dept_id
                                     WHERE e.emp_id = ?";
