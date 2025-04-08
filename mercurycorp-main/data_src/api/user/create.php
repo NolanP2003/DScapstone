@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmtPhysician = $mysqli->prepare($sqlPhysician);
 
             // echo "ID: $id, Username: $username<br>";
-            $stmtPhysician->bind_param("is", $id, $username);
+            $stmtPhysician->bind_param("i", $id);
             $stmtPhysician->execute();
             // Debugging: Check if execution was successful
             // if ($stmtPhysician->error) {
@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     JOIN departments d ON e.department_id = d.dept_id
                                     WHERE e.emp_id = ?";
                 $stmtDept = $mysqli->prepare($sqlEmployeeDept);
-                $stmtDept->bind_param("is", $id, $username);
+                $stmtDept->bind_param("i", $id);
                 // echo "ID: $id, Username: $username<br>"; // debug
                 $stmtDept->execute();
                 $resultDept = $stmtDept->get_result();
