@@ -110,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $sql = "INSERT INTO users (username, password, role, id) VALUES (?, ?, ?, ?)";
             $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("sssi", $username, $hashedPassword, $id);
+            $stmt->bind_param("sssi", $username, $hashedPassword, $role, $id);
             if ($stmt->execute()) {
                 $registrationSuccess = "Registration successful! You can now log in.";
                 header("Location: ../../../web_src/login.php");
