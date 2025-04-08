@@ -33,23 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               // Hash the password for security
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-            $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("ss", $username, $hashedPassword);
-            if ($stmt->execute()) {
-                $registrationSuccess = "Registration successful! You can now log in.";
-                header("Location: ../../../web_src/login.php");
-                exit;
-            } else {
-                $registrationError = "Error! Please try again.";
-            }
-        }
-
-        $stmt->close();
-    }
-}
-      
-        // Step 2: Determine the role based on the ID
+            // Step 2: Determine the role based on the ID
         
             // Check if the id exists in the physicians table
             $sqlPhysician = "SELECT * FROM physician WHERE physician_id = ? AND email = ?";
@@ -123,6 +107,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
         }
 
+
+            $sql = "INSERT INTO users (username, password, role, id) VALUES (?, ?, ?, ?)";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("sssi", $username, $hashedPassword, $id);
+            if ($stmt->execute()) {
+                $registrationSuccess = "Registration successful! You can now log in.";
+                header("Location: ../../../web_src/login.php");
+                exit;
+            } else {
+                $registrationError = "Error! Please try again.";
+            }
+        }
+
+        $stmt->close();
+    }
+}
+      
 
  ?>
 
