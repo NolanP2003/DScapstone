@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirm_password'];
+    $id = $_POST['id'];
 
     if ($password !== $confirmPassword) {
         $registrationError = "Passwords do not match.";
@@ -47,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 }
-      /*
+      
         // Step 2: Determine the role based on the ID
         
             // Check if the id exists in the physicians table
@@ -90,12 +91,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // echo "<br>";
                     $role = $row['dept_name']; // Assign department name as role
                     // echo "Assigned Role: $role<br>"; // Debugging statement
-                 } else {
+                  // else {
                 //     echo "No department found matching ID: $id and email: $username.<br>"; //debugging statement
                 } 
               
             }
-        }
+
         // Debug statement to confirm role before insert
         // if ($role) {
         //     echo "Role ready for insert: $role<br>";
@@ -121,7 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "Please enter a valid username and ID.";
             
         }
-    } */
 
 
  ?>
