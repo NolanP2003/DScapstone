@@ -52,11 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Step 2: Determine the role based on the ID
         
             // Check if the id exists in the physicians table
-            $sqlPhysician = "SELECT * FROM physician WHERE physician_id = ?";
+            $sqlPhysician = "SELECT * FROM physician WHERE physician_id = ? AND email = ?";
             $stmtPhysician = $mysqli->prepare($sqlPhysician);
 
             // echo "ID: $id, Username: $username<br>";
-            $stmtPhysician->bind_param("i", $id);
+            $stmtPhysician->bind_param("is", $id, $username);
             $stmtPhysician->execute();
             // Debugging: Check if execution was successful
             // if ($stmtPhysician->error) {
@@ -76,9 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $sqlEmployeeDept = "SELECT e.emp_id, e.department_id, d.dept_name
                                     FROM employees e
                                     JOIN departments d ON e.department_id = d.dept_id
-                                    WHERE e.emp_id = ?";
+                                    WHERE e.emp_id = ? AND e.email = ?";
                 $stmtDept = $mysqli->prepare($sqlEmployeeDept);
-                $stmtDept->bind_param("i", $id);
+                $stmtDept->bind_param("is", $id, $username);
                 // echo "ID: $id, Username: $username<br>"; // debug
                 $stmtDept->execute();
                 $resultDept = $stmtDept->get_result();
