@@ -95,28 +95,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmtInsert->bind_param("sssi", $username, $hashedPassword, $role, $id); // Use "i" for id if it's integer
 
             if ($stmtInsert->execute()) {
-              $message = "User successfully created.";
-            } 
-            else {
-              echo "Error during insert: " . $stmtInsert->error  . "<br>";
-            }
-            // $stmtDept->close();
-            $stmtInsert->close();
-        } else {
-            $message = "Please enter a valid username and ID.";
-            
-        }
-
-
-            $sql = "INSERT INTO users (username, password, role, id) VALUES (?, ?, ?, ?)";
-            $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("sssi", $username, $hashedPassword, $role, $id);
-            if ($stmt->execute()) {
-                $registrationSuccess = "Registration successful! You can now log in.";
-                header("Location: ../../../web_src/login.php");
-                exit;
+              $registrationSuccess = "Registration successful! You can now log in.";
+              header("Location: ../../../web_src/login.php");
+              exit;
             } else {
-                $registrationError = "Error! Please try again.";
+                  $registrationError = "Error during insert: " . $stmtInsert->error;
+            }
+
+            $stmtInsert->close();
+            } else {
+                $registrationError = "Please enter a valid username and ID.";
             }
         }
 
