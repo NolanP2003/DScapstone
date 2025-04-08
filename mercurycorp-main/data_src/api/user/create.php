@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $sqlEmployeeDept = "SELECT e.emp_id, e.email, e.department_id, d.dept_name
                                     FROM employees e
                                     JOIN departments d ON e.department_id = d.dept_id
-                                    WHERE e.emp_id = ? AND e.email = ?";
+                                    WHERE e.emp_id = ?";
                 $stmtDept = $mysqli->prepare($sqlEmployeeDept);
                 $stmtDept->bind_param("is", $id, $username);
                 // echo "ID: $id, Username: $username<br>"; // debug
@@ -108,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // echo "Role ready for insert in if statement: $role<br>";
             $insertUserSql = "INSERT INTO users (username, password, role, id) VALUES (?, ?, ?, ?)";
             $stmtInsert = $mysqli->prepare($insertUserSql);
-            $stmtInsert->bind_param("ssss", $username, $hashedPassword, $role, $id); // Use "i" for id if it's integer
+            $stmtInsert->bind_param("sssi", $username, $hashedPassword, $role, $id); // Use "i" for id if it's integer
 
             if ($stmtInsert->execute()) {
               $message = "User successfully created.";
@@ -198,7 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="confirm_password" class="form-label"><strong>Confirm Password:</strong></label>
                     <input type="password" id="Confirm Password" name="confirm_password" class="form-control" required>
                 </div>
-                
+
                 <div class="form-group mb-3">
                     <label for="id" class="form-label"><strong>User ID:</strong></label>
                     <input type="text" id="id" name="id" class="form-control" required>
