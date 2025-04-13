@@ -40,7 +40,7 @@
             <!-- Initial options and messages will be populated here by JS -->
             <div id="initial-options">
                 <button class="option-button" data-mode="general">General Health</button>
-                <button class="option-button" data-mode="masonic">Masonic Policies</button>
+                <button class="option-button" data-mode="masonic">Medical Policies</button>
             </div>
         </div>
         <div id="chatbot-input-area">
@@ -151,7 +151,7 @@
                      initialPrompt.remove();
                  }
                 chatbotInputArea.style.display = 'flex';
-                addMessage('bot', `You selected ${currentMode === 'general' ? 'General Health' : 'Masonic Policies'}. How can I assist you with this topic?`);
+                addMessage('bot', `You selected ${currentMode === 'general' ? 'General Health' : 'Medical Policies'}. How can I assist you with this topic?`);
                 chatbotInput.focus();
                  scrollToBottom();
             });
@@ -304,7 +304,7 @@
              const btnMasonic = document.createElement('button');
              btnMasonic.classList.add('next-option-button');
              btnMasonic.setAttribute('data-mode', 'masonic');
-             btnMasonic.textContent = 'Masonic Policies';
+             btnMasonic.textContent = 'Medical Policies';
 
              // Add listeners to THESE buttons
              [btnGeneral, btnMasonic].forEach(button => {
@@ -317,7 +317,7 @@
                         promptMessage.remove();
                      }
 
-                     addMessage('bot', `Okay, switching to ${newMode === 'general' ? 'General Health' : 'Masonic Policies'}. What is your question?`);
+                     addMessage('bot', `Okay, switching to ${newMode === 'general' ? 'General Health' : 'Medical Policies'}. What is your question?`);
 
                      chatbotInputArea.style.display = 'flex';
                      chatbotInput.focus();
