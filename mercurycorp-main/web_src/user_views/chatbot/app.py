@@ -93,7 +93,7 @@ def find_masonic_definitions(user_input):
     user_words = set(re.findall(r'\b\w{3,}\b', user_input_lower))
 
     if not masonic_data:
-        return ["Sorry, I couldn't load the Masonic policy data. Please check server logs."]
+        return ["Sorry, I couldn't load the medical policy data. Please check server logs."]
 
     found_match = False
     matched_procedures_lower = set()
@@ -120,7 +120,7 @@ def find_masonic_definitions(user_input):
 
     if not found_match:
         # prints if the user input does not match any of the procedures
-        return ["I couldn't find specific information related to your query in the Masonic policies. Could you please rephrase or ask about a different topic?"]
+        return ["I couldn't find specific information related to your query in the medical policies. Could you please rephrase or ask about a different topic?"]
 
     unique_definitions = list(dict.fromkeys(definitions))
     return unique_definitions
@@ -198,7 +198,7 @@ def chat_endpoint():
         if not user_message:
             return jsonify({'reply': ["Please type a question."]})
         if not mode or mode not in ['general', 'masonic']:
-             return jsonify({'reply': ["Error: Invalid mode specified. Choose 'General Health' or 'Masonic Policies'."]}), 400
+             return jsonify({'reply': ["Error: Invalid mode specified. Choose 'General Health' or 'Medical Policies'."]}), 400
 
 
         reply_content = []
