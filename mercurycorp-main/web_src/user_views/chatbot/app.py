@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
 from dotenv import load_dotenv
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -156,29 +157,31 @@ Your purpose is to provide general health information clearly and concisely.
     ]
 
     try:
+        # START TIMER ⏱️
+        start_time = time.time()
+
+        # Call OpenAI API
         completion = ai_client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             max_tokens=200,
             temperature=0.5,
-            n=1,
-            stop=None
+            n=1
         )
+
+        # END TIMER ⏱️
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"[OpenAI API Response Time]: {elapsed_time:.2f} seconds")
+
+        # Process and return response as usual
         raw_ai_answer = completion.choices[0].message.content.strip()
         response_sentences = split_into_sentences(raw_ai_answer)
-        response_sentences = [s for s in response_sentences if s]
-
-        if not response_sentences or "cannot provide medical advice" in raw_ai_answer.lower() or len(raw_ai_answer) < 50:
-             return ["I understand you're asking about that topic. However, as an AI, I cannot provide specific medical advice or diagnosis."]
-
-        final_response = response_sentences
-
-        return final_response
+        return response_sentences if response_sentences else ["I couldn't process your question."]
 
     except Exception as e:
         print(f"Error calling OpenAI API: {e}")
-        return ["Sorry, I encountered an issue while trying to generate a response. This might be a temporary problem. Please try asking again in a moment."]
-
+        return ["Sorry, I encountered an issue while trying to generate a response."]
 
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
