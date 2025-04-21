@@ -18,7 +18,7 @@ if ($conn->connect_error) {
 
 // Start the session to get the logged-in user's username
 
-$dbUsername = $_SESSION['username'];
+$username = $_SESSION['username'];
 $firstName = '';
 $totalEmployees = 0;
 $totalDepartments = 0;
@@ -28,7 +28,7 @@ $sqlUser = "SELECT first_name FROM employees WHERE email = ?";
 $stmtUser = $conn->prepare($sqlUser);
 
 if ($stmtUser) {
-    $stmtUser->bind_param("s", $dbUsername);
+    $stmtUser->bind_param("s", $username);
     $stmtUser->execute();
     $resultUser = $stmtUser->get_result();
 
