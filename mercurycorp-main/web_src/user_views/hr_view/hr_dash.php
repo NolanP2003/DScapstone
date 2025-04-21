@@ -108,7 +108,7 @@ $conn->close();
             <!-- Navbar content collapses into a dropdown menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="emp_man/employee_man.php">Employee Management</a></li>
+                    <li class="nav-item"><a class="nav-link" href="emp_man/employee_main.php">Employee Management</a></li>
                     <li class="nav-item"><a class="nav-link" href="department_man.php">Department Management</a></li>
                     <!-- <li class="nav-item"><a class="nav-link" href="attendance.php">Attendance & Leave</a></li> -->
                     <li class="nav-item"><a class="nav-link" href="payroll.php">Payroll</a></li>
