@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="employee_man.php">Back</a></li>
+                    <li class="nav-item"><a class="nav-link" href="employee_main.php">Back</a></li>
                 </ul>
             </div>
 
