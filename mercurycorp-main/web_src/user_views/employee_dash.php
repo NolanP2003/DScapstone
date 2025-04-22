@@ -110,9 +110,9 @@ $conn->close();
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="nurse_dash.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="patient_analysis.php">Patient Analysis</a></li>
                     <li class="nav-item"><a class="nav-link" href="medical_records_dash.php">Medical Records</a></li>
-                    <li class="nav-item"><a class="nav-link" href="employee_dash.php">Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li>
                     <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                 </ul>
