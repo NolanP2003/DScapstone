@@ -9,9 +9,52 @@ The chatbot is currently using the medical_qa.csv file. It is using a Flask app 
 
 
 ### Patient Analysis
-Milestone 3: 
+#### Length of Stay Prediction Model
 
-In this project, models were developed to predict the Length of Stay (LOS) for patients using medical records data, focusing on demographic information, medication codes, encounter reasons, and visit history. Various models were expiermented with, including tree-based approaches (Random Forest and Gradient Boosting), linear models (Linear Regression, Ridge, Lasso, and ElasticNet), and a sequential neural network with embedded categorical features. After thorough evaluation, the Lasso Regression (alpha=0.01) model demonstrated the best performance, with a Test MAE of 0.0693 and Test RMSE of 0.0940. Additionally, combining the best Lasso and ElasticNet models into an ensemble further improved results, achieving a Test MAE of 0.0657 and Test RMSE of 0.0914. Data encoding was carefully managed, with label encoding for tree-based models, one-hot encoding for linear models, and embedding layers for sequential models. While sequential models posed computational challenges, the ensemble method balanced accuracy and generalization effectively. Future work will focus on feeding patient records into the model and adding to the website.
+This model is designed to predict a patient’s length of hospital stay, expressed in whole days. It leverages key patient data to provide accurate and interpretable output that can support healthcare planning and operational efficiency.
+
+Input Features:
+- Unique patient identifier  
+- Demographic details
+- Medical history, including prior diagnoses, comorbidities, and encounter types  
+
+Processing Workflow:
+1. Data Preprocessing: The input data undergoes cleaning and validation to handle missing values and ensure consistency.
+2. Feature Engineering:  
+   - Categorical variables are encoded appropriately.  
+   - Time-aware features such as days since last visit and recency scores are generated.  
+   - Temporal shifting is applied to align the data properly for sequence-based prediction.
+3. Model Input: The final processed data is then passed into the trained machine learning model.
+4. Output: The model returns a predicted numerical length of stay, rounded to the nearest whole day for practical use.
+
+This model can help hospitals better allocate resources, anticipate discharge planning, and support overall patient flow management.
+
+After tuning multiple regression models, an ensemble of the best-performing Lasso and ElasticNet configurations was selected for predicting patient length of stay. Among individual models, Lasso with an alpha of 0.01 performed best on the test set with a Mean Absolute Error (MAE) of 0.0693 and Root Mean Squared Error (RMSE) of 0.0940. Similarly, ElasticNet with alpha = 0.01 and l1_ratio = 0.5 achieved a test MAE of 0.0622 and RMSE of 0.0890. When combined, the ensemble model yielded the strongest overall performance, achieving a test MAE of 0.0657 and RMSE of 0.0914, indicating improved accuracy and generalization. These results suggest that the ensemble approach successfully leverages the strengths of both models, resulting in more stable and reliable predictions of hospital length of stay.
+
+#### Encounter Reason Classification Model
+
+This model predicts the likely reason for a patient’s next healthcare encounter, aiding in proactive care planning and resource allocation. It categorizes the visit into one of five encounter types: routine, chronic, urgent, acute, or rare.
+
+Input Features:
+- Unique patient identifier  
+- Demographic information 
+- Insurance coverage type  
+- Medical procedure and diagnosis codes  
+- History of the past five patient encounters  
+
+Processing Workflow:
+1. Data Preprocessing: Initial cleanup ensures all required fields are available, and any missing or malformed data is handled.
+2. Feature Engineering:  
+   - Categorical fields are encoded (e.g., insurance type, procedure codes).  
+   - Encounter types are frequency encoded to capture their relevance in the dataset.  
+   - Time-based features (e.g., days since last visit) are computed and shifted for temporal modeling.  
+   - All numerical values are standardized for consistency.
+3. Model Input: Processed features are passed into the classification model trained to recognize patterns across patient timelines.
+4. Output: The model returns a predicted class label corresponding to the expected type of the next encounter: routine, chronic, urgent, acute, or rare.
+
+This model supports clinicians and healthcare staff by anticipating patient needs and optimizing care delivery pathways.
+
+The best-performing model for encounter reason classification was a LSTM network. While it demonstrated an overall accuracy (25%), its performance varied significantly across classes. The model performed best on the routine class, with a recall of 0.51 and an F1-score of 0.33, indicating it was relatively effective at identifying common, non-urgent visits. However, it struggled with underrepresented classes such as acute, rare, and urgentcare, where it failed to make any correct predictions, resulting in precision and recall scores of 0.00 for those categories. The macro and weighted averages reflect this imbalance, with an F1-score of 0.11 (macro) and 0.21 (weighted). These results highlight a need for more specific data. If the model were trained on data tailored to a specific population, such as geriatric or pediatric patients, it may have performed better. Additionally, applying class balancing techniques could improve performance across underrepresented encounter types, however this was avoided to an extreme extent to keep the data consistent. 
 
 ### Fixing Up Website
 The website is currently being updated to improve upon some of its pages that look a bit rough around the edges. A new branch has also been created in order to work on the website from the branch before moving those new changes onto the main branch. That way, it would prevent errors from affecting the website in the main branch while also allowing for debugging to occur. Creation of a chatbot box on the nurse_dash.php page has been started in order to allow the nurses on the site to ask the chatbot questions if they need help. Chatbot can currently send responses back to user, but more work needs to be done in order to ensure no errors with chatbot code. Since there are certain responses to questions that the chatbot doesn't have any answers to, an automatic prompt is now given to let the user know that the chatbot can't answer the question in order to avoid the chatbot replying with an error. Changed up the login page so that it redirects automatically to the nurse_dashboard page instead of the employee dashboard page. The resident dashboard page was also changed as the page wasn't configured to the style of the other mercury corp pages.
