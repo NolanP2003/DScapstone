@@ -1,3 +1,7 @@
+<!-- THIS IS IN DEVELOPMENT, NEEDS WORK ON SECURITY BEFORE IT SHOULD BE ADDED TO NAVIGATION BARS -->
+
+
+
 <?php
 session_start(); // Start the session
 
@@ -88,18 +92,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_resident'])) {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="../style.css" rel="stylesheet">
+    <link rel="stylesheet" href="chatbot/chatbot.css">
 </head>
 <body>
 
-<!-- Header -->
 <header class="row">
-    <div class="col-1">
-        <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo">
-    </div>
-    <div class="col">
-        <h1 class="abril-fatface-regular">Mercury</h1>
-    </div>
-</header>
+        <div class="col-1">
+          <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo">
+        </div>
+        <div class="col">
+          <h1 class = "abril-fatface-regular">Mercury</h1>
+        </div>
+        <div class="col-1">
+            <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo" style="display: none;">
+        </div>
+</header> 
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg" style="background-color: rgb(133, 161, 170); height: 70px;">
@@ -201,6 +208,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_resident'])) {
         <button type="submit" name="add_resident" class="btn btn-primary w-100">Add Resident</button>
     </form>
 </div>
+
+<!-- beginning of chatbot stuff -->
+<div class="chatbot-content-area">
+        <?php
+        // Include the chatbot content from chatbot.php
+        $chatbotPath = __DIR__ . '/chatbot/chatbot.php';
+        if (file_exists($chatbotPath)) {
+            include_once $chatbotPath;
+        } else {
+            echo '<div class="alert alert-danger m-3" role="alert">Error: Chatbot components could not be loaded. File not found.</div>';
+        }
+        ?>
+    </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatbotToggle = document.getElementById("chatbot-toggle");
+        const chatbotPopup = document.getElementById("chatbot-popup");
+        const chatbotClose = document.getElementById("chatbot-close");
+
+        chatbotToggle.addEventListener("click", function() {
+            const isHidden = chatbotPopup.style.display === "none";
+            chatbotPopup.style.display = isHidden ? "block" : "none";
+            chatbotToggle.setAttribute('aria-label', isHidden ? 'Close Chatbot' : 'Open Chatbot');
+        });
+        
+        chatbotClose.addEventListener("click", function() {
+            chatbotPopup.style.display = "none";
+            chatbotToggle.setAttribute('aria-label', 'Open Chatbot');
+        });
+    });
+</script>
+<!-- end of chatbot stuff -->
 
 </body>
 </html>

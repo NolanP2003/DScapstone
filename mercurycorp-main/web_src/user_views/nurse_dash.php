@@ -177,7 +177,11 @@ try {
           <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo">
         </div>
         <div class="col">
-          <h1 class = "abril-fatface-regular">Mercury</h1>
+            <!-- make Mercury center and larger -->
+          <h1 class="abril-fatface-regular">Mercury</h1>
+        </div>
+        <div class="col-1">
+            <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo" style="display: none;">
         </div>
       </header>
 
@@ -194,7 +198,7 @@ try {
                     <li class="nav-item"><a class="nav-link" href="patient_analysis.php">Patient Analysis</a></li>
                     <li class="nav-item"><a class="nav-link" href="medical_records_dash.php">Medical Records</a></li>
                     <li class="nav-item"><a class="nav-link" href="employee_dash.php">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li> -->
                     <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                 </ul>
     </nav><br>
@@ -329,142 +333,137 @@ try {
         <div class="alert alert-warning text-center">No medication records found for the selected resident.</div>
     <?php endif; ?>
 
-    <!-- Form to create a new medication administration record -->
-    <div class="form-container">
-        <h2 class="text-center mb-4">Create Medication Administration Record</h2>
-        <form action="nurse_dash.php" method="POST" class="form-layout">
-            
-            <div class="mb-3">
-                <div class="form-header-label">Medication/Treatment Name:</div>
-                <input type="text" name="new_type_name" class="form-control" placeholder="Enter medication or treatment name" required>
-            </div>
+<!-- Two forms side by side with better formatting -->
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- Create Medication Administration Record Form -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Create Medication Administration Record</h2>
+                    <form action="nurse_dash.php" method="POST" class="form-layout">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Medication/Treatment Name:</label>
+                            <input type="text" name="new_type_name" class="form-control" placeholder="Enter medication or treatment name" required>
+                        </div>
 
-            <div class="mb-3">
-                <div class="form-header-label">Notes:</div>
-                <textarea name="new_notes" class="form-control" rows="3" placeholder="Enter any relevant notes"></textarea>
-            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes:</label>
+                            <textarea name="new_notes" class="form-control" rows="3" placeholder="Enter any relevant notes"></textarea>
+                        </div>
 
-            <div class="mb-3">
-                <div class="form-header-label">Medication Refused:</div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="new_medication_refused" id="new_medication_refused">
+                        <div class="mb-3">
+                            <label class="form-label">Medication Refused:</label><br>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="new_medication_refused" id="new_medication_refused">
+                                <label class="form-check-label" for="new_medication_refused">Yes</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Physician Order:</label>
+                            <select name="new_order_id" class="form-select" required>
+                                <option value="">Select an order</option>
+                                <?php foreach ($recentOrders as $order): ?>
+                                    <option value="<?php echo htmlspecialchars($order['order_id']); ?>">
+                                        <?php echo htmlspecialchars($order['order_text']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Employee ID (Administered by):</label>
+                            <input type="number" name="new_emp_id" class="form-control" placeholder="Enter employee ID" required>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary w-100">Create Record</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="mb-3">
-                <div class="form-header-label">Physician Order:</div>
-                <select name="new_order_id" class="form-select" required>
-                    <option value="">Select an order</option>
-                    <?php foreach ($recentOrders as $order): ?>
-                        <option value="<?php echo htmlspecialchars($order['order_id']); ?>">
-                            <?php echo htmlspecialchars($order['order_text']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <div class="form-header-label">Employee ID (Administered by):</div>
-                <input type="number" name="new_emp_id" class="form-control" placeholder="Enter employee ID" required>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary w-100">Create Record</button>
-            </div>
-        </form>
-    </div>
-
-
-
-    <!-- Form to create a new physician order -->
-    <div class = "form-container">
-    <h2 class="text-center mb-4">Create Physician Order</h2>
-    <form action="../../data_src/api/mar_tar/create_order.php" method="POST">
-
-        <div class="form-header-label">Medication:</div>
-        <input type="text" name="medication" required placeholder="Enter medication name">
-
-        <div class="form-header-label">Dosage:</div>
-        <input type="text" name="dosage" required placeholder="Enter dosage">
-
-        <div class="form-header-label">Frequency:</div>
-        <input type="text" name="frequency" required placeholder="Enter frequency">
-
-        <div class="form-header-label">Start Date:</div>
-        <input type="date" name="start_date" min="<?php echo date('Y-m-d'); ?>" required>
-
-        <div class="form-header-label">End Date:</div>
-        <input type="date" name="end_date">
-
-        <div class="form-header-label">Instructions:</div>
-        <div class="input-container">
-            <textarea name="instructions" placeholder="Enter instructions"></textarea>
         </div>
 
-        <!-- Dropdown for Physician ID -->
-        <div class="form-header-label">Physician:</div>
-        <select name="physician_id" required>
-            <option value="">Select a physician</option>
-            <?php foreach ($physicians as $physician): ?>
-                <option value="<?php echo htmlspecialchars($physician['physician_id']); ?>">
-                    <?php echo htmlspecialchars($physician['last_name'] . ', ' . $physician['first_name']); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+        <!-- Create Physician Order Form -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Create Physician Order</h2>
+                    <form action="../../data_src/api/mar_tar/create_order.php" method="POST">
 
-        <!-- Dropdown for Resident ID -->
-        <div class="form-header-label">Resident:</div>
-        <select name="res_id" id="res_id" required>
-            <option value="">Select a resident</option>
-            <?php foreach ($residents as $resident): ?>
-                <option value="<?php echo htmlspecialchars($resident['res_id']); ?>">
-                    <?php echo htmlspecialchars($resident['last_name'] . ', ' . $resident['first_name']); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+                        <div class="mb-3">
+                            <label class="form-label">Medication:</label>
+                            <input type="text" name="medication" class="form-control" required placeholder="Enter medication name">
+                        </div>
 
-        <div class="form-header-label">Employee ID (Administered by):</div>
-        <input type="number" name="emp_id" required placeholder="Enter employee ID">
+                        <div class="mb-3">
+                            <label class="form-label">Dosage:</label>
+                            <input type="text" name="dosage" class="form-control" required placeholder="Enter dosage">
+                        </div>
 
-        <button type="submit">Submit Order</button>
-    </form>
+                        <div class="mb-3">
+                            <label class="form-label">Frequency:</label>
+                            <input type="text" name="frequency" class="form-control" required placeholder="Enter frequency">
+                        </div>
 
-    <!-- Display recent physician orders for testing -->
-    <br></br>
-    </div>
-    <div class="table-container">
-        <h2 class="text-center mb-4">Recent Physician Orders</h2>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Record ID</th>
-                        <th>Order Date</th>
-                        <th>Order Details</th>
-                        <th>Physician ID</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($recentOrders)): ?>
-                        <?php foreach ($recentOrders as $order): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($order['order_id']); ?></td>
-                                <td><?php echo htmlspecialchars($order['rec_id']); ?></td>
-                                <td><?php echo htmlspecialchars($order['order_date']); ?></td>
-                                <td><?php echo htmlspecialchars($order['order_text']); ?></td>
-                                <td><?php echo htmlspecialchars($order['physician_id']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5" class="text-center">No recent orders found.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        <div class="mb-3">
+                            <label class="form-label">Start Date:</label>
+                            <input type="date" name="start_date" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">End Date:</label>
+                            <input type="date" name="end_date" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Instructions:</label>
+                            <textarea name="instructions" class="form-control" rows="3" placeholder="Enter instructions"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Physician:</label>
+                            <select name="physician_id" class="form-select" required>
+                                <option value="">Select a physician</option>
+                                <?php foreach ($physicians as $physician): ?>
+                                    <option value="<?php echo htmlspecialchars($physician['physician_id']); ?>">
+                                        <?php echo htmlspecialchars($physician['last_name'] . ', ' . $physician['first_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Resident:</label>
+                            <select name="res_id" class="form-select" required>
+                                <option value="">Select a resident</option>
+                                <?php foreach ($residents as $resident): ?>
+                                    <option value="<?php echo htmlspecialchars($resident['res_id']); ?>">
+                                        <?php echo htmlspecialchars($resident['last_name'] . ', ' . $resident['first_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Employee ID (Administered by):</label>
+                            <input type="number" name="emp_id" class="form-control" required placeholder="Enter employee ID">
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary w-100">Submit Order</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+
 
 
 <!-- beginning of chatbot stuff -->

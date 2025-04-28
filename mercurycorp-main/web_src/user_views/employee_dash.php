@@ -84,6 +84,7 @@ $conn->close();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- CSS Source-->
     <link href="../style.css" rel="stylesheet">
+    <link rel="stylesheet" href="chatbot/chatbot.css">
     <!-- Google Font API-->
     <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Arima:wght@100..700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
@@ -98,6 +99,9 @@ $conn->close();
     <div class="col">
         <h1 class="abril-fatface-regular">Mercury</h1>
     </div>
+    <div class="col-1">
+            <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo" style="display: none;">
+    </div>
 </header>  
 
 <!-- Navbar -->
@@ -106,14 +110,14 @@ $conn->close();
             <!-- Navbar content collapses into a dropdown menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                <h3>Nurse Dashboard</h3>
+                <h3>Profile</h3>
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="nurse_dash.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="patient_analysis.php">Patient Analysis</a></li>
                     <li class="nav-item"><a class="nav-link" href="medical_records_dash.php">Medical Records</a></li>
-                    <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li> -->
                     <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                 </ul>
     </nav><br>
@@ -172,6 +176,40 @@ $conn->close();
         </div>
     <?php endif; ?>
 </section>
+
+<!-- beginning of chatbot stuff -->
+<div class="chatbot-content-area">
+        <?php
+        // Include the chatbot content from chatbot.php
+        $chatbotPath = __DIR__ . '/chatbot/chatbot.php';
+        if (file_exists($chatbotPath)) {
+            include_once $chatbotPath;
+        } else {
+            echo '<div class="alert alert-danger m-3" role="alert">Error: Chatbot components could not be loaded. File not found.</div>';
+        }
+        ?>
+    </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatbotToggle = document.getElementById("chatbot-toggle");
+        const chatbotPopup = document.getElementById("chatbot-popup");
+        const chatbotClose = document.getElementById("chatbot-close");
+
+        chatbotToggle.addEventListener("click", function() {
+            const isHidden = chatbotPopup.style.display === "none";
+            chatbotPopup.style.display = isHidden ? "block" : "none";
+            chatbotToggle.setAttribute('aria-label', isHidden ? 'Close Chatbot' : 'Open Chatbot');
+        });
+        
+        chatbotClose.addEventListener("click", function() {
+            chatbotPopup.style.display = "none";
+            chatbotToggle.setAttribute('aria-label', 'Open Chatbot');
+        });
+    });
+</script>
+<!-- end of chatbot stuff -->
 
 
 <footer class="text-center mt-4">

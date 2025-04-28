@@ -14,6 +14,7 @@ include('../navbarFunctions.php');
     crossorigin="anonymous"></script>
   <!-- CSS Source-->
   <link href="../style.css" rel="stylesheet">
+  <link rel="stylesheet" href="chatbot/chatbot.css">
   <!-- Google Font API-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,6 +73,9 @@ include('../navbarFunctions.php');
         <div class="col">
           <h1 class = "abril-fatface-regular">Mercury</h1>
         </div>
+        <div class="col-1">
+            <img class="main_logo" src="../photos/mercuryCorpLogo.png" alt="MercuryCorp logo" style="display: none;">
+        </div>
 </header> 
 <nav class="navbar navbar-expand-lg" style="background-color: rgb(133, 161, 170); height: 70px;">
         <div class="container-fluid">
@@ -90,7 +94,7 @@ include('../navbarFunctions.php');
                     <li class="nav-item"><a class="nav-link" href="nurse_dash.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="patient_analysis.php">Patient Analysis</a></li>
                     <li class="nav-item"><a class="nav-link" href="employee_dash.php">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link" href="add_resident.php">Add Resident</a></li> -->
                     <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                 </ul>
     </nav>
@@ -183,72 +187,40 @@ include('../navbarFunctions.php');
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- chatbot button to expand and collapse -->
-<button id="chatbot-toggle" style="position: fixed; bottom: 20px; right: 20px; padding: 10px; background-color: blue; color: white; border: none; border-radius: 5px;">
-    Chatbot
-</button>
-
-<!-- chatbot popup window -->
-<div id="chatbot-popup" style="display: none; position: fixed; bottom: 150px; right: 20px; width: 380px; height: 500px; background: white; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); border: 1px solid #ccc; overflow: hidden;">
-    <div id="chat-header" style="background: blue; color: white; padding: 10px; font-size: 18px; font-weight: bold; text-align: center; display: flex; justify-content: space-between; align-items: center; cursor: move;">
-        <span>Medical Chatbot</span>
-        <button id="chatbot-close" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+<!-- beginning of chatbot stuff -->
+<div class="chatbot-content-area">
+        <?php
+        // Include the chatbot content from chatbot.php
+        $chatbotPath = __DIR__ . '/chatbot/chatbot.php';
+        if (file_exists($chatbotPath)) {
+            include_once $chatbotPath;
+        } else {
+            echo '<div class="alert alert-danger m-3" role="alert">Error: Chatbot components could not be loaded. File not found.</div>';
+        }
+        ?>
     </div>
 
-    <!-- use the chatbot.php file -->
-    <iframe id="chatbot-frame" src="chatbot/chatbot.php" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
 
 <script>
-    // Listen to button clicks and show/hide the chatbot popup
     document.addEventListener("DOMContentLoaded", function() {
         const chatbotToggle = document.getElementById("chatbot-toggle");
         const chatbotPopup = document.getElementById("chatbot-popup");
         const chatbotClose = document.getElementById("chatbot-close");
 
         chatbotToggle.addEventListener("click", function() {
-            chatbotPopup.style.display = chatbotPopup.style.display === "none" ? "block" : "none";
+            const isHidden = chatbotPopup.style.display === "none";
+            chatbotPopup.style.display = isHidden ? "block" : "none";
+            chatbotToggle.setAttribute('aria-label', isHidden ? 'Close Chatbot' : 'Open Chatbot');
         });
-
+        
         chatbotClose.addEventListener("click", function() {
             chatbotPopup.style.display = "none";
+            chatbotToggle.setAttribute('aria-label', 'Open Chatbot');
         });
-        
-        const chatHeader = document.getElementById("chat-header");
-
-        let xPos, yPos, isDragging = false;
-
-        chatHeader.addEventListener("mousedown", function(e) {
-            isDragging = true;
-            xPos = e.clientX - chatbotPopup.getBoundingClientRect().left;
-            yPos = e.clientY - chatbotPopup.getBoundingClientRect().top;
-            chatHeader.style.cursor = 'move';
-        });
-
-        document.addEventListener("mousemove", function(e) {
-            if (isDragging) {
-                const x = e.clientX - xPos;
-                const y = e.clientY - yPos;
-                const xMax = window.innerWidth - chatbotPopup.offsetWidth;
-                const yMax = window.innerHeight - chatbotPopup.offsetHeight;
-                chatbotPopup.style.left = `${Math.min(Math.max(x, 0), xMax)}px`;
-                chatbotPopup.style.top = `${Math.min(Math.max(y, 0), yMax)}px`;
-
-                chatbotPopup.style.right = '';
-                chatbotPopup.style.bottom = '';
-            }
-        });
-
-        document.addEventListener("mouseup", function() {
-            isDragging = false;
-            chatHeader.style.cursor = 'default';
-        });
-        
     });
 </script>
-
-
-    <footer>
+<!-- end of chatbot stuff -->
+<footer>
   <p> 2024 Mercury Corp. All rights reserved.</p>
   <p>Follow us on social media!</p>
     <a href="https://github.com/Laneyeh">
